@@ -27,7 +27,10 @@ jobs:
 
       - name: Extract Commit Hash
         id: vars
-        run: echo "COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+        run: |
+          # Get the commit hash of the parent commit (before merge)
+          PARENT_COMMIT_HASH=$(git log --format="%h" -n 2 | tail -n 1)
+          echo "COMMIT_HASH=$PARENT_COMMIT_HASH" >> $GITHUB_ENV
 
       - name: Debug Commit Hash
         run: |
