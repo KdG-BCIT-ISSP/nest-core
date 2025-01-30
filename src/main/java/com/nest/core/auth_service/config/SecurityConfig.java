@@ -51,8 +51,10 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(
+                                // Swagger Setting
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
+                                // User-Management-Service
                                 "/api/v1/member/join",
                                 "/api/v1/member/login"
                         ).permitAll()
