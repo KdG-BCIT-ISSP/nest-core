@@ -4,10 +4,16 @@ import com.nest.core.comment_management_service.model.Comment;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.report_management_service.model.Report;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.Set;
 
 @Entity
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name="member")
 public class Member {
 
@@ -17,7 +23,8 @@ public class Member {
 
     private String email;
 
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private MemberRole role;
 
     private String username;
 
