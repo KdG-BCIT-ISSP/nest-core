@@ -17,7 +17,7 @@ public class AuthService {
 
     public LoginTokenDto getNewLoginToken(NewTokenDto newTokenDto){
 
-        if (!jwtUtil.isExpired(newTokenDto.getRefreshToken())){
+        if (jwtUtil.isExpired(newTokenDto.getRefreshToken())){
             return null;
         }
 
