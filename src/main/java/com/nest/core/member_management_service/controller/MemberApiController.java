@@ -1,6 +1,8 @@
 package com.nest.core.member_management_service.controller;
 
 import com.nest.core.member_management_service.dto.JoinMemberRequest;
+import com.nest.core.member_management_service.dto.LoginMemberRequest;
+import com.nest.core.auth_service.dto.LoginTokenDto;
 import com.nest.core.member_management_service.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,14 @@ public class MemberApiController {
     public ResponseEntity<String> join(@RequestBody JoinMemberRequest joinMemberRequest){
         memberService.securityJoin(joinMemberRequest);
         return ResponseEntity.ok("Signup Success");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginMemberRequest loginMemberRequest){
+        LoginTokenDto loginTokenDto = memberService.login(loginMemberRequest);
+        log.info("TokenDto : {}" , loginTokenDto);
+        return ResponseEntity.ok(loginTokenDto);
+
     }
 
 

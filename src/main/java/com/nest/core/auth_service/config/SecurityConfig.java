@@ -51,7 +51,8 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(
-                                "/api/v1/member/join"
+                                "/api/v1/member/join",
+                                "/api/v1/member/login"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );
