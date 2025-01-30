@@ -11,32 +11,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out repository
-      uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ensures full Git history
 
-    - name: Set Up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: 17
+      - name: Set Up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
 
-    - name: Log in to Docker Hub
-      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    - name: Extract Commit Hash
-      id: vars
-      run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      - name: Extract Commit Hash
+        id: vars
+        run: echo "COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
-    - name: Build and Push Docker Image
-      run: |
-        docker buildx build --build-arg POSTGRES_URL=${{ secrets.POSTGRES_URL }} \
-                            --build-arg POSTGRES_USERNAME=${{ secrets.POSTGRES_USERNAME }} \
-                            --build-arg POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
-                            --build-arg POSTGRES_DB_PLATFORM=${{ secrets.POSTGRES_DB_PLATFORM }} \
-                            --build-arg JWT_SECRET=${{ secrets.JWT_SECRET }} \
-                            --build-arg REDIS_HOST=${{ secrets.REDIS_HOST }} \
-                            --build-arg REDIS_PORT=${{ secrets.REDIS_PORT }} \
-                            -t devjasper0906/nest-core:${{ env.COMMIT_HASH }} \
-                            --platform linux/amd64 . 
+      - name: Debug Commit Hash
+        run: |
+          echo "GitHub SHA: $GITHUB_SHA"
+          echo "Git Commit Hash (rev-parse): $(git rev-parse --short HEAD)"
+          git log --oneline -5
 
-        docker push devjasper0906/nest-core:${{ env.COMMIT_HASH }}
+      - name: Build and Push Docker Image
+        run: |
+          docker buildx build --build-arg POSTGRES_URL=${{ secrets.POSTGRES_URL }} \
+                              --build-arg POSTGRES_USERNAME=${{ secrets.POSTGRES_USERNAME }} \
+                              --build-arg POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+                              --build-arg POSTGRES_DB_PLATFORM=${{ secrets.POSTGRES_DB_PLATFORM }} \
+                              --build-arg JWT_SECRET=${{ secrets.JWT_SECRET }} \
+                              --build-arg REDIS_HOST=${{ secrets.REDIS_HOST }} \
+                              --build-arg REDIS_PORT=${{ secrets.REDIS_PORT }} \
+                              -t devjasper0906/nest-core:${{ env.COMMIT_HASH }} \
+                              --platform linux/amd64 . 
+          
+          docker push devjasper0906/nest-core:${{ env.COMMIT_HASH }}
