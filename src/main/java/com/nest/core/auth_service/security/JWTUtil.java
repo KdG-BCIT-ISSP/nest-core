@@ -1,20 +1,25 @@
 package com.nest.core.auth_service.security;
 
 import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class JWTUtil {
+    private final RedisTemplate redisTemplate;
     private SecretKey secretKey;
 
-    public JWTUtil(@Value("${spring.jwt.secret}") String secret){
+    public JWTUtil(@Value("${spring.jwt.secret}") String secret, @Qualifier("redisTemplate") RedisTemplate redisTemplate){
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+        this.redisTemplate = redisTemplate;
     }
 
     public String getEmail(String token) {
@@ -52,6 +57,14 @@ public class JWTUtil {
                 .expiration(expiration)
                 .signWith(secretKey)
                 .compact();
+
+        redisTemplate.opsForValue().set(
+                email,
+                refreshToken,
+                expiredMs,
+                TimeUnit.MILLISECONDS
+        );
+
         return refreshToken;
     }
 }
