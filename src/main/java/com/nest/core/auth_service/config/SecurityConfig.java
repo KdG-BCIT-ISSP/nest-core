@@ -3,6 +3,7 @@ package com.nest.core.auth_service.config;
 import com.nest.core.auth_service.security.JWTFilter;
 import com.nest.core.auth_service.security.JWTUtil;
 import com.nest.core.auth_service.security.LoginFilter;
+import com.nest.core.member_management_service.model.MemberRole;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -58,6 +59,7 @@ public class SecurityConfig {
                                 "/api/v1/member/join",
                                 "/api/v1/member/login"
                         ).permitAll()
+                        .requestMatchers("/api/v1/auth/getNewAccessToken").hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         .anyRequest().authenticated()
                 );
         http
