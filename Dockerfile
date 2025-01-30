@@ -1,23 +1,33 @@
-# Use an OpenJDK image
-FROM openjdk:17-jdk-slim
+FROM openjdk:17-jdk-slim AS builder
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the Gradle wrapper files
 COPY gradlew gradlew
 COPY gradle gradle
-
-# Copy the source code and configuration files
 COPY src src
 COPY build.gradle build.gradle
 COPY settings.gradle settings.gradle
 
-# Grant execute permission to the Gradle wrapper
 RUN chmod +x gradlew
 
-# Build the project
 RUN ./gradlew bootJar
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "build/libs/core-0.0.1-SNAPSHOT.jar"]
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
+COPY --from=builder /app/build/libs/core-0.0.1-SNAPSHOT.jar app.jar
+
+ARG POSTGRES_URL
+ARG POSTGRES_USERNAME
+ARG POSTGRES_PASSWORD
+ARG POSTGRES_DB_PLATFORM
+ARG JWT_SECRET
+
+ENV POSTGRES_URL=$POSTGRES_URL
+ENV POSTGRES_USERNAME=$POSTGRES_USERNAME
+ENV POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+ENV POSTGRES_DB_PLATFORM=$POSTGRES_DB_PLATFORM
+ENV JWT_SECRET=$JWT_SECRET
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
