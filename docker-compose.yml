@@ -13,7 +13,7 @@ services:
 
   nest-core:
 #    Change the commit hash to test
-    image: devjasper0906/nest-core:c75c6a9
+    image: devjasper0906/nest-core:67bbbcf
     container_name: nest-core
     ports:
       - "8080:8080"
