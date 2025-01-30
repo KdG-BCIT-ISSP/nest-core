@@ -1,10 +1,24 @@
 version: '3.9'
 
 services:
+  redis:
+    image: "redis:latest"
+    hostname: "redis"
+    volumes:
+      - ./redis/data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
   nest-core:
 #    Change the commit hash to test
-    image: devjasper0906/nest-core:ffcf5e2
+    image: devjasper0906/nest-core:3f88683
     container_name: nest-core
     ports:
       - "8080:8080"
+    depends_on:
+      - redis
+    links:
+      - redis
 
