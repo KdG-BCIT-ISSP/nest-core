@@ -1,6 +1,7 @@
 package com.nest.core.auth_service.service;
 
 import com.nest.core.auth_service.dto.LoginTokenDto;
+import com.nest.core.auth_service.dto.NewTokenDto;
 import com.nest.core.auth_service.security.JWTUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -14,20 +15,20 @@ import org.springframework.stereotype.Service;
 public class AuthService {
     private final JWTUtil jwtUtil;
 
-    public LoginTokenDto getNewLoginToken(String refreshToken){
+    public LoginTokenDto getNewLoginToken(NewTokenDto newTokenDto){
 
-        if (!jwtUtil.isExpired(refreshToken)){
+        if (!jwtUtil.isExpired(newTokenDto.getRefreshToken())){
             return null;
         }
 
         return new LoginTokenDto(
                 jwtUtil.createJwt(
-                        jwtUtil.getEmail(refreshToken),
-                        jwtUtil.getRole(refreshToken),
+                        jwtUtil.getEmail(newTokenDto.getRefreshToken()),
+                        jwtUtil.getRole(newTokenDto.getRefreshToken()),
                         1000 * 60 * 30L),
                 jwtUtil.createRefreshToken(
-                        jwtUtil.getEmail(refreshToken),
-                        jwtUtil.getRole(refreshToken),
+                        jwtUtil.getEmail(newTokenDto.getRefreshToken()),
+                        jwtUtil.getRole(newTokenDto.getRefreshToken()),
                         1000 * 60 * 60 * 7L
                 )
         );

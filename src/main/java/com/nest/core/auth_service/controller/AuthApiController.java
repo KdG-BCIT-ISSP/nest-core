@@ -1,11 +1,13 @@
 package com.nest.core.auth_service.controller;
 
 import com.nest.core.auth_service.dto.LoginTokenDto;
+import com.nest.core.auth_service.dto.NewTokenDto;
 import com.nest.core.auth_service.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,8 +19,8 @@ public class AuthApiController {
     private final AuthService authService;
 
     @PostMapping("/getNewAccessToken")
-    public ResponseEntity<?> getNewAccessToken(String refreshToken){
-        LoginTokenDto newLoginTokenDto = authService.getNewLoginToken(refreshToken);
+    public ResponseEntity<?> getNewAccessToken(@RequestBody NewTokenDto newTokenDto){
+        LoginTokenDto newLoginTokenDto = authService.getNewLoginToken(newTokenDto);
         return ResponseEntity.ok(newLoginTokenDto);
     }
 }
