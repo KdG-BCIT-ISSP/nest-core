@@ -24,6 +24,16 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        String requestURI = request.getRequestURI();
+
+        if (requestURI.startsWith("/swagger-ui") ||
+                requestURI.startsWith("/v3/api-docs") ||
+                requestURI.startsWith("/swagger-resources") ||
+                requestURI.startsWith("/webjars")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         String authorization = request.getHeader("Authorization");
 
         if(authorization == null || !authorization.startsWith("Bearer ")){
@@ -36,7 +46,6 @@ public class JWTFilter extends OncePerRequestFilter {
             if (jwtUtil.isExpired(token)) {
                 log.warn("Token Expired");
                 filterChain.doFilter(request, response);
-
                 return;
             }
 
@@ -55,7 +64,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
         } catch (Exception e){
-            throw new IOException(e);
+            log.error("JWT processing error", e);
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);

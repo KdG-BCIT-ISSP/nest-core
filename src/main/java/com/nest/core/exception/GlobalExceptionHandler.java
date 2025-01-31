@@ -1,16 +1,22 @@
 package com.nest.core.exception;
 
+import com.nest.core.auth_service.controller.AuthApiController;
 import com.nest.core.auth_service.exception.RefreshTokenExpiredException;
+import com.nest.core.member_management_service.controller.MemberApiController;
 import com.nest.core.member_management_service.exception.DuplicateMemberFoundException;
 import com.nest.core.member_management_service.exception.InvalidPasswordException;
 import com.nest.core.member_management_service.exception.MemberNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-@RestControllerAdvice
-public class GlobalExceptionHandler {
+@RestControllerAdvice(annotations = {RestController.class}, basePackageClasses = {
+        AuthApiController.class, MemberApiController.class
+})
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
      * Member_Management_Service Exception
