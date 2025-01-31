@@ -4,6 +4,9 @@ import com.nest.core.auth_service.security.JWTUtil;
 import com.nest.core.member_management_service.dto.JoinMemberRequest;
 import com.nest.core.member_management_service.dto.LoginMemberRequest;
 import com.nest.core.auth_service.dto.LoginTokenDto;
+import com.nest.core.member_management_service.exception.DuplicateMemberFoundException;
+import com.nest.core.member_management_service.exception.InvalidPasswordException;
+import com.nest.core.member_management_service.exception.MemberNotFoundException;
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.member_management_service.repository.MemberRepository;
 import jakarta.transaction.Transactional;
@@ -23,36 +26,32 @@ public class MemberService {
 
     public void securityJoin(JoinMemberRequest joinMemberRequest){
         if(memberRepository.existsByEmail(joinMemberRequest.getEmail())){
-            return;
+            throw new DuplicateMemberFoundException("Email is already registered.");
         }
 
         joinMemberRequest.setPassword(bCryptPasswordEncoder.encode(joinMemberRequest.getPassword()));
-
-
         Member member = joinMemberRequest.toEntity();
 
         try {
             memberRepository.save(member);
         } catch (Exception e) {
-            log.warn(e.getMessage());
+            log.warn("Error saving member: {}", e.getMessage());
+            throw new RuntimeException("Unexpected error occurred while saving member");
         }
     }
 
     public LoginTokenDto login(LoginMemberRequest loginMemberRequest) {
 
         log.info("LoginRequest : {}", loginMemberRequest.getEmail());
-        log.info("LoginRequest : {}", loginMemberRequest.getPassword());
 
         Member findMember = memberRepository.findByEmail(loginMemberRequest.getEmail());
 
         if(findMember == null){
-            log.info("Member not found");
-            return null;
+            throw new MemberNotFoundException("Member not found.");
         }
 
         if (!bCryptPasswordEncoder.matches(loginMemberRequest.getPassword(), findMember.getPassword())) {
-            log.info("Password not matched");
-            return null;
+            throw new InvalidPasswordException("Invalid password.");
         }
 
         return new LoginTokenDto(
