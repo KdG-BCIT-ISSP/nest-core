@@ -2,6 +2,7 @@ package com.nest.core.member_management_service.controller;
 
 import com.nest.core.member_management_service.dto.JoinMemberRequest;
 import com.nest.core.member_management_service.dto.LoginMemberRequest;
+import com.nest.core.member_management_service.dto.UpdateProfileRequest;
 import com.nest.core.auth_service.dto.LoginTokenDto;
 import com.nest.core.member_management_service.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +34,9 @@ public class MemberApiController {
 
     }
 
-
+    @PostMapping("/updateProfile")
+    public ResponseEntity<String> updateProfile(@RequestBody UpdateProfileRequest updateProfileRequest){
+        memberService.updateProfile(updateProfileRequest);
+        return ResponseEntity.ok("Profile updated");
+    }
 }

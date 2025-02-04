@@ -3,6 +3,7 @@ package com.nest.core.member_management_service.service;
 import com.nest.core.auth_service.security.JWTUtil;
 import com.nest.core.member_management_service.dto.JoinMemberRequest;
 import com.nest.core.member_management_service.dto.LoginMemberRequest;
+import com.nest.core.member_management_service.dto.UpdateProfileRequest;
 import com.nest.core.auth_service.dto.LoginTokenDto;
 import com.nest.core.member_management_service.exception.DuplicateMemberFoundException;
 import com.nest.core.member_management_service.exception.InvalidPasswordException;
@@ -67,4 +68,20 @@ public class MemberService {
         );
     }
 
+    public void updateProfile(UpdateProfileRequest updateMemberRequest) {
+
+        log.info("UpdateProfileRequest : {}", updateMemberRequest.getUsername());
+
+        Member findMember = memberRepository.findByEmail(updateMemberRequest.getEmail());
+
+        if (findMember == null) {
+            throw new MemberNotFoundException("Member not found.");            
+        }
+
+        findMember.setUsername(updateMemberRequest.getUsername());
+        findMember.setRegion(updateMemberRequest.getRegion());
+        findMember.setAvatar(updateMemberRequest.getAvatar());
+
+        memberRepository.save(findMember);
+    }
 }
