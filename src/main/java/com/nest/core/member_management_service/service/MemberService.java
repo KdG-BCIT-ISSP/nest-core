@@ -82,6 +82,11 @@ public class MemberService {
         findMember.setRegion(updateMemberRequest.getRegion());
         findMember.setAvatar(updateMemberRequest.getAvatar());
 
-        memberRepository.save(findMember);
+        try {
+            memberRepository.save(findMember);
+        } catch (Exception e) {
+            log.warn("Error updating member: {}", e.getMessage());
+            throw new RuntimeException("Unexpected error occurred while saving member");
+        }
     }
 }
