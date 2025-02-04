@@ -59,10 +59,14 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 // User-Management-Service
                                 "/api/v1/member/join",
-                                "/api/v1/member/login",
-                                "/api/v1/member/updateProfile"
-                        ).permitAll()
-                        .requestMatchers("/api/v1/auth/getNewAccessToken").hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
+                                "/api/v1/member/login"
+                                ).permitAll()
+                                .requestMatchers(
+                                        "/api/v1/auth/getNewAccessToken",                                        
+                                        // User-Management-Service
+                                        "/api/v1/member/updateProfile"
+
+                        ).hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         .anyRequest().authenticated()
                 );
         http
