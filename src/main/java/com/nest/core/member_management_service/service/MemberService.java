@@ -8,6 +8,7 @@ import com.nest.core.auth_service.dto.LoginTokenDto;
 import com.nest.core.member_management_service.exception.DuplicateMemberFoundException;
 import com.nest.core.member_management_service.exception.InvalidPasswordException;
 import com.nest.core.member_management_service.exception.MemberNotFoundException;
+import com.nest.core.member_management_service.exception.ProfileUpdateException;
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.member_management_service.repository.MemberRepository;
 import jakarta.transaction.Transactional;
@@ -57,10 +58,12 @@ public class MemberService {
 
         return new LoginTokenDto(
                 jwtUtil.createJwt(
+                        String.valueOf(findMember.getId()),
                         findMember.getEmail(),
                         String.valueOf(findMember.getRole()),
                         1000 * 60 * 30L),
                 jwtUtil.createRefreshToken(
+                        String.valueOf(findMember.getId()),
                         findMember.getEmail(),
                         String.valueOf(findMember.getRole()),
                         1000 * 60 * 60 * 7L
@@ -68,25 +71,41 @@ public class MemberService {
         );
     }
 
-    public void updateProfile(UpdateProfileRequest updateMemberRequest) {
+    public void updateProfile(Long userId, UpdateProfileRequest updateMemberRequest) {
+        log.info("Updating profile for UserId: {}", userId);
 
-        log.info("UpdateProfileRequest : {}", updateMemberRequest.getUsername());
+        Member findMember = memberRepository.findById(userId)
+                .orElseThrow(() -> new MemberNotFoundException("Member not found for ID: " + userId));
 
-        Member findMember = memberRepository.findByEmail(updateMemberRequest.getEmail());
+        boolean updated = false;
 
-        if (findMember == null) {
-            throw new MemberNotFoundException("Member not found.");            
+        if (updateMemberRequest.getUsername() != null && !updateMemberRequest.getUsername().equals(findMember.getUsername())) {
+            findMember.setUsername(updateMemberRequest.getUsername());
+            updated = true;
         }
 
-        findMember.setUsername(updateMemberRequest.getUsername());
-        findMember.setRegion(updateMemberRequest.getRegion());
-        findMember.setAvatar(updateMemberRequest.getAvatar());
+        if (updateMemberRequest.getRegion() != null && !updateMemberRequest.getRegion().equals(findMember.getRegion())) {
+            findMember.setRegion(updateMemberRequest.getRegion());
+            updated = true;
+        }
+
+        if (updateMemberRequest.getAvatar() != null && !updateMemberRequest.getAvatar().equals(findMember.getAvatar())) {
+            findMember.setAvatar(updateMemberRequest.getAvatar());
+            updated = true;
+        }
+
+        if (!updated) {
+            log.info("No changes detected for UserId: {}", userId);
+            return;
+        }
 
         try {
             memberRepository.save(findMember);
+            log.info("Profile updated successfully for UserId: {}", userId);
         } catch (Exception e) {
-            log.warn("Error updating member: {}", e.getMessage());
-            throw new RuntimeException("Unexpected error occurred while saving member");
+            log.error("Error updating profile for UserId {}: {}", userId, e.getMessage());
+            throw new ProfileUpdateException("Unexpected error occurred while updating profile");
         }
     }
+
 }

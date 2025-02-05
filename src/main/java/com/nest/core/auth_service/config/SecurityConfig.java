@@ -3,6 +3,7 @@ package com.nest.core.auth_service.config;
 import com.nest.core.auth_service.security.JWTFilter;
 import com.nest.core.auth_service.security.JWTUtil;
 import com.nest.core.auth_service.security.LoginFilter;
+import com.nest.core.auth_service.service.CustomUserDetailService;
 import com.nest.core.member_management_service.model.MemberRole;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfig {
 
     private final AuthenticationConfiguration configuration;
+    private final CustomUserDetailService customUserDetailService;
     private final JWTUtil jwtUtil;
 
     @Bean
@@ -64,7 +66,7 @@ public class SecurityConfig {
                                 .requestMatchers(
                                         "/api/v1/auth/getNewAccessToken",                                        
                                         // User-Management-Service
-                                        "/api/v1/member/updateProfile"
+                                        "/api/v1/member/me"
 
                         ).hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         .anyRequest().authenticated()
@@ -74,7 +76,7 @@ public class SecurityConfig {
 
 
         http
-                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JWTFilter(jwtUtil, customUserDetailService), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(new LoginFilter(authenticationManager(configuration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         http

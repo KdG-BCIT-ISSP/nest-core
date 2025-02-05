@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class UpdateProfileRequest {
-    private String email;
     private String username;
     private String region;
     private String avatar;
