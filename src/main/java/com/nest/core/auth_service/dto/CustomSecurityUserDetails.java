@@ -27,6 +27,10 @@ public class CustomSecurityUserDetails implements UserDetails {
         return collection;
     }
 
+    public Long getUserId() {
+        return member.getId();
+    }
+
     @Override
     public String getUsername() {
         return member.getUsername();

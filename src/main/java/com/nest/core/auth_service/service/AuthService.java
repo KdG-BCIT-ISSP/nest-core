@@ -24,10 +24,12 @@ public class AuthService {
 
         return new LoginTokenDto(
                 jwtUtil.createJwt(
+                        jwtUtil.getUserId(newTokenDto.getRefreshToken()),
                         jwtUtil.getEmail(newTokenDto.getRefreshToken()),
                         jwtUtil.getRole(newTokenDto.getRefreshToken()),
                         1000 * 60 * 30L),
                 jwtUtil.createRefreshToken(
+                        jwtUtil.getUserId(newTokenDto.getRefreshToken()),
                         jwtUtil.getEmail(newTokenDto.getRefreshToken()),
                         jwtUtil.getRole(newTokenDto.getRefreshToken()),
                         1000 * 60 * 60 * 7L

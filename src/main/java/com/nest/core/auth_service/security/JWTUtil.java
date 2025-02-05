@@ -22,6 +22,10 @@ public class JWTUtil {
         this.redisTemplate = redisTemplate;
     }
 
+    public String getUserId(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("uid", String.class);
+    }
+
     public String getEmail(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("email", String.class);
     }
@@ -34,9 +38,10 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createJwt(String email, String role, Long expiredMs) {
+    public String createJwt(String uid, String email, String role, Long expiredMs) {
 
         return Jwts.builder()
+                .claim("uid" , uid)
                 .claim("email", email)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -45,12 +50,13 @@ public class JWTUtil {
                 .compact();
     }
 
-    public String createRefreshToken(String email, String role, Long expiredMs){
+    public String createRefreshToken(String uid, String email, String role, Long expiredMs){
 
         Date now = new Date(System.currentTimeMillis());
         Date expiration = new Date(System.currentTimeMillis() + expiredMs);
 
         String refreshToken = Jwts.builder()
+                .claim("uid", uid)
                 .claim("email", email)
                 .claim("role", role)
                 .issuedAt(now)

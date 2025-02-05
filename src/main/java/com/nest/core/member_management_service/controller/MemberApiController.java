@@ -1,16 +1,18 @@
 package com.nest.core.member_management_service.controller;
 
+import com.nest.core.auth_service.dto.CustomSecurityUserDetails;
 import com.nest.core.member_management_service.dto.JoinMemberRequest;
 import com.nest.core.member_management_service.dto.LoginMemberRequest;
+import com.nest.core.member_management_service.dto.UpdateProfileRequest;
 import com.nest.core.auth_service.dto.LoginTokenDto;
 import com.nest.core.member_management_service.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,5 +35,20 @@ public class MemberApiController {
 
     }
 
+    @PutMapping("/me")
+    public ResponseEntity<String> updateProfile(@RequestBody UpdateProfileRequest updateProfileRequest, @AuthenticationPrincipal UserDetails userDetails){
 
+        log.info("UserDetails class: {}", userDetails.getClass().getName());
+
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            String username = customUser.getUsername();
+            log.info("UserID {}", userId);
+            log.info("UserName {}", username);
+            memberService.updateProfile(userId, updateProfileRequest);
+            return ResponseEntity.ok("Profile updated");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+    }
 }
