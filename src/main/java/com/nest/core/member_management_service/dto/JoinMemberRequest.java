@@ -14,10 +14,12 @@ public class JoinMemberRequest {
     private String email;
     private String password;
     private String username;
+    private String avatar;
 
     public Member toEntity(){
         return Member.builder()
                 .email(this.email)
+                .avatar(this.avatar)
                 .password(this.password)
                 .username(this.username)
                 .role(MemberRole.USER)

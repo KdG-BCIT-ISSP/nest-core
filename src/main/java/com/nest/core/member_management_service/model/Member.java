@@ -28,7 +28,8 @@ public class Member {
 
     private String username;
 
-    private String avatar;
+    @Builder.Default
+    private String avatar = "https://cvhrma.org/wp-content/uploads/2015/07/default-profile-photo.jpg";
 
     private String password;
 
@@ -43,6 +44,11 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Report> reports;
 
-
+    @PrePersist
+    public void prePersist(){
+        if (this.avatar == null || this.avatar.isEmpty()) {
+            this.avatar = "https://cvhrma.org/wp-content/uploads/2015/07/default-profile-photo.jpg";
+        }
+    }
 
 }

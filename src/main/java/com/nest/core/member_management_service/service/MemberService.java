@@ -26,8 +26,6 @@ public class MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JWTUtil jwtUtil;
 
-    // Default profile picture url here for now
-    private static final String DEFAULT_AVATAR_URL = "https://cvhrma.org/wp-content/uploads/2015/07/default-profile-photo.jpg";
 
     public void securityJoin(JoinMemberRequest joinMemberRequest){
         if(memberRepository.existsByEmail(joinMemberRequest.getEmail())){
@@ -36,7 +34,6 @@ public class MemberService {
 
         joinMemberRequest.setPassword(bCryptPasswordEncoder.encode(joinMemberRequest.getPassword()));
         Member member = joinMemberRequest.toEntity();
-        member.setAvatar(DEFAULT_AVATAR_URL);
 
         try {
             memberRepository.save(member);
