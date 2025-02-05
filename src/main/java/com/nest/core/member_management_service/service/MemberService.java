@@ -26,6 +26,7 @@ public class MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JWTUtil jwtUtil;
 
+
     public void securityJoin(JoinMemberRequest joinMemberRequest){
         if(memberRepository.existsByEmail(joinMemberRequest.getEmail())){
             throw new DuplicateMemberFoundException("Email is already registered.");
