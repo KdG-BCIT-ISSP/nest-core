@@ -1,9 +1,9 @@
 package com.nest.core.member_management_service.service;
 
 import com.nest.core.auth_service.security.JWTUtil;
+import com.nest.core.member_management_service.dto.GetProfileResponse;
 import com.nest.core.member_management_service.dto.JoinMemberRequest;
 import com.nest.core.member_management_service.dto.LoginMemberRequest;
-import com.nest.core.member_management_service.dto.MemberResponse;
 import com.nest.core.member_management_service.dto.UpdateProfileRequest;
 import com.nest.core.auth_service.dto.LoginTokenDto;
 import com.nest.core.member_management_service.exception.DuplicateMemberFoundException;
@@ -110,17 +110,10 @@ public class MemberService {
         }
     }
 
-    public MemberResponse getMember(Long userId) {
+    public GetProfileResponse getMember(Long userId) {
         
-        Member member = memberRepository.findById(userId)
+        return memberRepository.findById(userId)
+                .map(GetProfileResponse::new)
                 .orElseThrow(() -> new MemberNotFoundException("Member not found for ID: " + userId));
-
-        return new MemberResponse(
-                member.getRole(),
-                member.getEmail(),
-                member.getUsername(),
-                member.getAvatar(),
-                member.getRegion()
-        );
     }
 }
