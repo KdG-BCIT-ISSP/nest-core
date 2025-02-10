@@ -1,6 +1,7 @@
 package com.nest.core.member_management_service.controller;
 
 import com.nest.core.auth_service.dto.CustomSecurityUserDetails;
+import com.nest.core.member_management_service.dto.GetProfileResponse;
 import com.nest.core.member_management_service.dto.JoinMemberRequest;
 import com.nest.core.member_management_service.dto.LoginMemberRequest;
 import com.nest.core.member_management_service.dto.UpdateProfileRequest;
@@ -47,6 +48,18 @@ public class MemberApiController {
             log.info("UserName {}", username);
             memberService.updateProfile(userId, updateProfileRequest);
             return ResponseEntity.ok("Profile updated");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getMember(@AuthenticationPrincipal UserDetails userDetails) {
+
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            GetProfileResponse getProfileResponse = memberService.getMember(userId);
+            return ResponseEntity.ok(getProfileResponse);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
         }
