@@ -1,5 +1,6 @@
 package com.nest.core.post_management_service.service;
 
+import com.nest.core.member_management_service.exception.MemberNotFoundException;
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.member_management_service.repository.MemberRepository;
 import com.nest.core.post_management_service.dto.CreateArticleRequest;
@@ -34,7 +35,7 @@ public class ArticleService {
 
         Member member = memberRepository
                 .findById(userId)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+                .orElseThrow(() -> new MemberNotFoundException("Member not found"));
 
         Topic topic = null;
         if (createArticleRequest.getTopicId() != null) {

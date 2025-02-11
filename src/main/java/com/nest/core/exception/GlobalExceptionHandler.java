@@ -6,6 +6,8 @@ import com.nest.core.member_management_service.controller.MemberApiController;
 import com.nest.core.member_management_service.exception.DuplicateMemberFoundException;
 import com.nest.core.member_management_service.exception.InvalidPasswordException;
 import com.nest.core.member_management_service.exception.MemberNotFoundException;
+import com.nest.core.post_management_service.controller.ArticleApiController;
+import com.nest.core.post_management_service.exception.CreateArticleFailException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice(annotations = {RestController.class}, basePackageClasses = {
-        AuthApiController.class, MemberApiController.class
+        AuthApiController.class, MemberApiController.class, ArticleApiController.class
 })
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -45,10 +47,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Post_Management_Service Exception
+     */
+    @ExceptionHandler(CreateArticleFailException.class)
+    public ResponseEntity<String> handleCreateArticleFailException(CreateArticleFailException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+
+    /**
      * General Exception
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGeneralException(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occured " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred " + ex.getMessage());
     }
 }
