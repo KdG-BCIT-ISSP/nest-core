@@ -36,6 +36,10 @@ public class ArticleApiController {
 
     @GetMapping
     public ResponseEntity<?> getArticles() {
-        return ResponseEntity.ok(articleService.getArticles());
+        try {
+            return ResponseEntity.ok(articleService.getArticles());
+        } catch (Exception e) {
+            throw new CreateArticleFailException("Failed to get articles: " + e.getMessage());
+        }
     }
 }
