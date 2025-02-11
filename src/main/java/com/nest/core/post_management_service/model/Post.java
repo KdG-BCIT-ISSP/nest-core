@@ -40,7 +40,7 @@ public class Post {
     private Topic topic;
 
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "posttag",
             joinColumns = @JoinColumn(name = "post_id"),

@@ -4,6 +4,7 @@ import com.nest.core.member_management_service.exception.MemberNotFoundException
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.member_management_service.repository.MemberRepository;
 import com.nest.core.post_management_service.dto.CreateArticleRequest;
+import com.nest.core.post_management_service.dto.GetArticleResponse;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.repository.PostRepository;
 import com.nest.core.tag_management_service.model.Tag;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -49,6 +51,13 @@ public class ArticleService {
 
         postRepository.save(post);
     }
+
+    public List<GetArticleResponse> getArticles() {
+        return postRepository.findAll().stream()
+                .map(GetArticleResponse::new)
+                .collect(Collectors.toList());
+    }
+
 
     private Set<Tag> createOrFindTags(Set<String> tagNames) {
         if (tagNames == null || tagNames.isEmpty()) {
