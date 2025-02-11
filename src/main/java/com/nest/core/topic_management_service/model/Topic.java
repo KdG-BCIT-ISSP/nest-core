@@ -3,10 +3,12 @@ package com.nest.core.topic_management_service.model;
 
 import com.nest.core.post_management_service.model.Post;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.util.Set;
 
 @Entity
+@Getter
 @Table(name="topic")
 public class Topic {
     @Id

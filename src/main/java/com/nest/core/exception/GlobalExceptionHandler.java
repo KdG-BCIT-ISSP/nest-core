@@ -8,6 +8,8 @@ import com.nest.core.member_management_service.exception.InvalidPasswordExceptio
 import com.nest.core.member_management_service.exception.MemberNotFoundException;
 import com.nest.core.post_management_service.controller.ArticleApiController;
 import com.nest.core.post_management_service.exception.CreateArticleFailException;
+import com.nest.core.post_management_service.exception.GetArticleFailException;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -53,6 +55,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<String> handleCreateArticleFailException(CreateArticleFailException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
+
+    @ExceptionHandler(GetArticleFailException.class)
+    public ResponseEntity<String> handleGetArticleFailException(GetArticleFailException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+
 
     /**
      * General Exception
