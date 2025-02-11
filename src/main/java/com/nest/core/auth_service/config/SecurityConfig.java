@@ -63,12 +63,14 @@ public class SecurityConfig {
                                 "/api/v1/member/join",
                                 "/api/v1/member/login"
                                 ).permitAll()
-                                .requestMatchers(
-                                        "/api/v1/auth/getNewAccessToken",                                        
-                                        // User-Management-Service
-                                        "/api/v1/member/me"
-
+                        .requestMatchers(
+                                "/api/v1/auth/getNewAccessToken",
+                                // User-Management-Service
+                                "/api/v1/member/me"
                         ).hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(
+                                "/api/v1/article"
+                        ).hasAnyRole(MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         .anyRequest().authenticated()
                 );
         http

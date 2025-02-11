@@ -2,11 +2,16 @@ package com.nest.core.tag_management_service.model;
 
 import com.nest.core.post_management_service.model.Post;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name="tag")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Tag {
 
     @Id
@@ -17,5 +22,6 @@ public class Tag {
     private String name;
 
     @ManyToMany(mappedBy = "tags")
-    private Set<Post> posts;
+    private Set<Post> posts = new HashSet<>();
+
 }
