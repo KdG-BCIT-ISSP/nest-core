@@ -7,6 +7,7 @@ import com.nest.core.post_management_service.dto.CreateArticleRequest;
 import com.nest.core.post_management_service.dto.EditArticleRequest;
 import com.nest.core.post_management_service.dto.EditArticleResponse;
 import com.nest.core.post_management_service.dto.GetArticleResponse;
+import com.nest.core.post_management_service.exception.DeleteArticleFailException;
 import com.nest.core.post_management_service.exception.EditArticleFailException;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.model.PostTag;
@@ -109,6 +110,21 @@ public class ArticleService {
 
         return postRepository.findById(post.getId()).map(EditArticleResponse::new).stream().toList().get(0);
 
+    }
+
+    public void deleteArticle(Long postId, Long userId, String userRole) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new DeleteArticleFailException("Post not found"));
+
+        if (!post.getMember().getId().equals(userId) ||
+                // TODO Check which roles are allowed to delete articles
+                (!userRole.equals("ROLE_ADMIN")
+                && !userRole.equals("ROLE_MODERATOR")
+                && !userRole.equals("ROLE_SUPER_ADMIN"))) {
+            throw new DeleteArticleFailException("Not authorized to delete this post");
+        }
+
+        postRepository.delete(post);
     }
 
 
