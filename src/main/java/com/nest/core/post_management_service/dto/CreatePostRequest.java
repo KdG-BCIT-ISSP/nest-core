@@ -18,6 +18,7 @@ import java.util.Set;
 public class CreatePostRequest {
     private String title;
     private String content;
+    private String type;
     private Long topicId;
     private Set<String> tagNames;
     private List<String> imageBase64;
@@ -26,6 +27,7 @@ public class CreatePostRequest {
         return Post.builder()
                 .title(this.title)
                 .content(this.content)
+                .type(this.type)
                 .topic(topic)
                 .member(member)
                 .postTags(new HashSet<>())

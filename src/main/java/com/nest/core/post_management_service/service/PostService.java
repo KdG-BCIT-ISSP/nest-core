@@ -4,6 +4,7 @@ import com.nest.core.member_management_service.exception.MemberNotFoundException
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.member_management_service.repository.MemberRepository;
 import com.nest.core.post_management_service.dto.CreatePostRequest;
+import com.nest.core.post_management_service.dto.GetPostResponse;
 import com.nest.core.post_management_service.exception.CreatePostFailException;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.model.PostImage;
@@ -20,10 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Base64;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,6 +43,12 @@ public class PostService {
         Set<Tag> tags = createOrFindTags(createPostRequest.getTagNames());
         savePostTags(createdPost, tags);
         saveImages(createPostRequest, createdPost);
+    }
+
+    public List<GetPostResponse> getPosts() {
+        return postRepository.findAllPosts().stream()
+                .map(GetPostResponse::new)
+                .collect(Collectors.toList());
     }
 
     private Member findMemberById(Long userId) {
