@@ -11,6 +11,7 @@ import com.nest.core.post_management_service.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -54,6 +55,25 @@ public class PostApiController {
                 return ResponseEntity.ok(postService.editPost(editPostRequest, userId));
             } catch (Exception e){
                 throw new EditArticleFailException("Failed to edit post: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<?> deletePost(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long postId) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser){
+            Long userId = customUser.getUserId();
+            String userRole = userDetails.getAuthorities().stream()
+                    .findFirst()
+                    .map(GrantedAuthority::getAuthority)
+                    .orElse("ROLE_USER");
+            try{
+                postService.deletePost(postId, userId, userRole);
+                return ResponseEntity.ok("Post deleted");
+            } catch (Exception e){
+                throw new EditArticleFailException("Failed to delete post: " + e.getMessage());
             }
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
