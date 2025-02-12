@@ -67,7 +67,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v1/auth/getNewAccessToken",
                                 // User-Management-Service
-                                "/api/v1/member/me"
+                                "/api/v1/member/me",
+                                // Post-Management-Service
+                                "/api/v1/posts"
                         ).hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         .requestMatchers(
                                 HttpMethod.DELETE,"/api/v1/article/**"
