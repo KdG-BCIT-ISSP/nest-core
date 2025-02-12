@@ -70,7 +70,7 @@ public class ArticleService {
     }
 
     public List<GetArticleResponse> getArticles() {
-        return postRepository.findAll().stream()
+        return postRepository.findAllArticles().stream()
                 .map(GetArticleResponse::new)
                 .collect(Collectors.toList());
     }

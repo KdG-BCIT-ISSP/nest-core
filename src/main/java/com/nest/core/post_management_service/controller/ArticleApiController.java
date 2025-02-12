@@ -8,6 +8,7 @@ import com.nest.core.post_management_service.dto.EditArticleResponse;
 import com.nest.core.post_management_service.exception.CreateArticleFailException;
 import com.nest.core.post_management_service.exception.DeleteArticleFailException;
 import com.nest.core.post_management_service.exception.EditArticleFailException;
+import com.nest.core.post_management_service.exception.GetArticleFailException;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.service.ArticleService;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,7 @@ public class ArticleApiController {
         try {
             return ResponseEntity.ok(articleService.getArticles());
         } catch (Exception e) {
-            throw new CreateArticleFailException("Failed to get articles: " + e.getMessage());
+            throw new GetArticleFailException("Failed to get articles: " + e.getMessage());
         }
     }
 

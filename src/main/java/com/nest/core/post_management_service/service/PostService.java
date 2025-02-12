@@ -4,6 +4,8 @@ import com.nest.core.member_management_service.exception.MemberNotFoundException
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.member_management_service.repository.MemberRepository;
 import com.nest.core.post_management_service.dto.CreatePostRequest;
+import com.nest.core.post_management_service.dto.GetPostResponse;
+import com.nest.core.post_management_service.dto.ImageHandler;
 import com.nest.core.post_management_service.exception.CreatePostFailException;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.model.PostImage;
@@ -20,10 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Base64;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,6 +44,12 @@ public class PostService {
         Set<Tag> tags = createOrFindTags(createPostRequest.getTagNames());
         savePostTags(createdPost, tags);
         saveImages(createPostRequest, createdPost);
+    }
+
+    public List<GetPostResponse> getPosts() {
+        return postRepository.findAllPosts().stream()
+                .map(GetPostResponse::new)
+                .collect(Collectors.toList());
     }
 
     private Member findMemberById(Long userId) {
@@ -80,10 +85,11 @@ public class PostService {
         int imageCount = Math.min(createPostRequest.getImageBase64().size(), 3);
         for (int i = 0; i < imageCount; i++) {
             try {
-                byte[] imageBytes = decodeBase64Image(createPostRequest.getImageBase64().get(i));
+                ImageHandler imageData = decodeBase64Image(createPostRequest.getImageBase64().get(i));
                 PostImage postImage = PostImage.builder()
                         .post(createdPost)
-                        .imageData(imageBytes)
+                        .imageData(imageData.getImageData())
+                        .imageType(imageData.getImageType())
                         .build();
                 postImageRepository.save(postImage);
             } catch (IllegalArgumentException e) {
@@ -93,9 +99,10 @@ public class PostService {
         }
     }
 
-    private byte[] decodeBase64Image(String base64Image) {
+    private ImageHandler decodeBase64Image(String base64Image) {
+        String imageType = base64Image.split(",")[0];
         String imageData = base64Image.split(",")[1];
-        return Base64.getDecoder().decode(imageData);
+        return new ImageHandler(imageType, Base64.getDecoder().decode(imageData));
     }
 
     private Set<Tag> createOrFindTags(Set<String> tagNames) {

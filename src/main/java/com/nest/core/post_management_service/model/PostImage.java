@@ -19,6 +19,9 @@ public class PostImage {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
+    @Column(name = "image_type", nullable = false)
+    private String imageType;
+
     @Column(name = "image_data", columnDefinition = "BYTEA", nullable = false)
     private byte[] imageData; // Store image as byte array
 }
