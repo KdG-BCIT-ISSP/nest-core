@@ -20,6 +20,7 @@ public class GetArticleResponse {
     private String memberUsername;
     private String memberAvatar;
     private Set<String> tagNames;
+    private String coverImage;
 
     public GetArticleResponse(Post post){
         this.id = post.getId();
@@ -33,5 +34,10 @@ public class GetArticleResponse {
         this.tagNames = post.getPostTags().stream()
                 .map(postTag -> postTag.getTag().getName())
                 .collect(Collectors.toSet());
+        if (post.getExtraData() != null && post.getExtraData().has("imageType") && post.getExtraData().has("imageData")) {
+            this.coverImage = post.getExtraData().get("imageType").asText() + "," + post.getExtraData().get("imageData").asText();
+        } else {
+            this.coverImage = null;
+        }
     }
 }

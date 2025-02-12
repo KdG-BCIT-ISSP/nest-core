@@ -18,5 +18,6 @@ public class EditArticleRequest {
     private String type;
     private Long topicId;
     private Set<String> tagNames;
+    private String coverImage;
 
 }

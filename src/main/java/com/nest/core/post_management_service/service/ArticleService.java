@@ -1,5 +1,8 @@
 package com.nest.core.post_management_service.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nest.core.member_management_service.exception.MemberNotFoundException;
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.member_management_service.repository.MemberRepository;
@@ -88,6 +91,9 @@ public class ArticleService {
         post.setContent(editArticleRequest.getContent());
         post.setType(editArticleRequest.getType());
 
+        JsonNode extraData = parseCoverImage(editArticleRequest.getCoverImage());
+        post.setExtraData(extraData);
+
         Topic topic = topicRepository.findById(editArticleRequest.getTopicId())
                 .orElseThrow(() -> new EditArticleFailException("Topic Not Found"));
         post.setTopic(topic);
@@ -137,5 +143,20 @@ public class ArticleService {
                 .map(tagName -> tagRepository.findByName(tagName)
                         .orElseGet(() -> tagRepository.save(new Tag(null, tagName, new HashSet<>())))
                 ).collect(Collectors.toSet());
+    }
+
+    private JsonNode parseCoverImage(String coverImage) {
+        if (coverImage == null || !coverImage.contains(",")) {
+            return null;
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode imageNode = objectMapper.createObjectNode();
+
+        String[] parts = coverImage.split(",", 2);
+        imageNode.put("imageType", parts[0]);
+        imageNode.put("imageData", parts[1]);
+
+        return imageNode;
     }
 }

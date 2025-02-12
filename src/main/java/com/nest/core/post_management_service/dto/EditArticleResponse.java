@@ -21,8 +21,9 @@ public class EditArticleResponse {
     private String memberUsername;
     private String memberAvatar;
     private Set<String> tagNames;
+    private String coverImage;
 
-    public EditArticleResponse(Post post){
+    public EditArticleResponse(Post post) {
         this.id = post.getId();
         this.topicName = post.getTopic().getName();
         this.title = post.getTitle();
@@ -34,6 +35,12 @@ public class EditArticleResponse {
         this.tagNames = post.getPostTags().stream()
                 .map(postTag -> postTag.getTag().getName())
                 .collect(Collectors.toSet());
+
+        if (post.getExtraData() != null && post.getExtraData().has("imageType") && post.getExtraData().has("imageData")) {
+            this.coverImage = post.getExtraData().get("imageType").asText() + "," + post.getExtraData().get("imageData").asText();
+        } else {
+            this.coverImage = null;
+        }
     }
 }
 
