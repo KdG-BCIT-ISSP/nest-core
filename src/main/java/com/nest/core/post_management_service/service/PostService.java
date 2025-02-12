@@ -4,9 +4,7 @@ import com.nest.core.member_management_service.exception.MemberNotFoundException
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.member_management_service.repository.MemberRepository;
 import com.nest.core.post_management_service.dto.*;
-import com.nest.core.post_management_service.exception.CreatePostFailException;
-import com.nest.core.post_management_service.exception.EditArticleFailException;
-import com.nest.core.post_management_service.exception.EditPostFailException;
+import com.nest.core.post_management_service.exception.*;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.model.PostImage;
 import com.nest.core.post_management_service.model.PostTag;
@@ -89,6 +87,22 @@ public class PostService {
 
         return postRepository.findById(post.getId()).map(EditPostResponse::new).stream().toList().get(0);
 
+    }
+
+    @Transactional
+    public void deletePost(Long postId, Long userId, String userRole) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new DeletePostFailException("Post not found"));
+
+        if (!post.getMember().getId().equals(userId) ||
+                // TODO Check which roles are allowed to delete userPost
+                (!userRole.equals("ROLE_ADMIN")
+                        && !userRole.equals("ROLE_MODERATOR")
+                        && !userRole.equals("ROLE_SUPER_ADMIN"))) {
+            throw new DeleteArticleFailException("Not authorized to delete this post");
+        }
+
+        postRepository.delete(post);
     }
 
 
