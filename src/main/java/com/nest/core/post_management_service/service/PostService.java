@@ -3,10 +3,10 @@ package com.nest.core.post_management_service.service;
 import com.nest.core.member_management_service.exception.MemberNotFoundException;
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.member_management_service.repository.MemberRepository;
-import com.nest.core.post_management_service.dto.CreatePostRequest;
-import com.nest.core.post_management_service.dto.GetPostResponse;
-import com.nest.core.post_management_service.dto.ImageHandler;
+import com.nest.core.post_management_service.dto.*;
 import com.nest.core.post_management_service.exception.CreatePostFailException;
+import com.nest.core.post_management_service.exception.EditArticleFailException;
+import com.nest.core.post_management_service.exception.EditPostFailException;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.model.PostImage;
 import com.nest.core.post_management_service.model.PostTag;
@@ -51,6 +51,50 @@ public class PostService {
                 .map(GetPostResponse::new)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public EditPostResponse editPost(EditPostRequest editPostRequest, Long userId) {
+        if (!editPostRequest.getMemberId().equals(userId)) {
+            throw new EditPostFailException("Not Authorized to edit this article");
+        }
+
+        Post post = postRepository.findById(editPostRequest.getId())
+                .orElseThrow(() -> new EditPostFailException("Article Not Found"));
+
+        post.setTitle(editPostRequest.getTitle());
+        post.setContent(editPostRequest.getContent());
+        post.setType(editPostRequest.getType());
+
+        Topic topic = topicRepository.findById(editPostRequest.getTopicId())
+                .orElseThrow(() -> new EditPostFailException("Topic Not Found"));
+        post.setTopic(topic);
+
+        Set<Tag> newTags = createOrFindTags(editPostRequest.getTagNames());
+
+        Set<PostTag> existingTags = post.getPostTags();
+        existingTags.removeIf(postTag -> !newTags.contains(postTag.getTag()));
+
+        for (Tag tag : newTags) {
+            boolean alreadyExists = existingTags.stream()
+                    .anyMatch(postTag -> postTag.getTag().equals(tag));
+
+            if (!alreadyExists) {
+                existingTags.add(new PostTag(post, tag));
+            }
+        }
+
+        editImages(editPostRequest, post);
+
+        postRepository.save(post);
+
+        return postRepository.findById(post.getId()).map(EditPostResponse::new).stream().toList().get(0);
+
+    }
+
+
+    /**
+     * Helper methods
+     */
 
     private Member findMemberById(Long userId) {
         return memberRepository
@@ -98,6 +142,34 @@ public class PostService {
             }
         }
     }
+
+    private void editImages(EditPostRequest editPostRequest, Post post) {
+        postImageRepository.deleteAll(post.getPostImages());
+        post.getPostImages().clear();
+
+        if (editPostRequest.getImageBase64() == null || editPostRequest.getImageBase64().isEmpty()) {
+            return;
+        }
+
+        List<PostImage> newImages = new ArrayList<>();
+        for (String base64Image : editPostRequest.getImageBase64()) {
+            try {
+                ImageHandler imageData = decodeBase64Image(base64Image);
+                newImages.add(PostImage.builder()
+                        .post(post)
+                        .imageData(imageData.getImageData())
+                        .imageType(imageData.getImageType())
+                        .build());
+            } catch (IllegalArgumentException e) {
+                log.error("Failed to decode image: {}", e.getMessage());
+                throw new EditPostFailException("Failed to decode image");
+            }
+        }
+
+        postImageRepository.saveAll(newImages);
+        post.getPostImages().addAll(newImages);
+    }
+
 
     private ImageHandler decodeBase64Image(String base64Image) {
         String imageType = base64Image.split(",")[0];
