@@ -34,7 +34,7 @@ public class GetPostResponse {
                 .map(postTag -> postTag.getTag().getName())
                 .collect(Collectors.toSet());
         this.imageBase64 = post.getPostImages().stream()
-                .map(image -> Base64.getEncoder().encodeToString(image.getImageData()))
+                .map(image -> image.getImageType() + "," + Base64.getEncoder().encodeToString(image.getImageData()))
                 .collect(Collectors.toList());
     }
 
