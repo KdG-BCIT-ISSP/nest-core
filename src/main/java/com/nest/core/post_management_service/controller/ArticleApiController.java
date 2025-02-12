@@ -2,7 +2,11 @@ package com.nest.core.post_management_service.controller;
 
 import com.nest.core.auth_service.dto.CustomSecurityUserDetails;
 import com.nest.core.post_management_service.dto.CreateArticleRequest;
+import com.nest.core.post_management_service.dto.EditArticleRequest;
+import com.nest.core.post_management_service.dto.EditArticleResponse;
 import com.nest.core.post_management_service.exception.CreateArticleFailException;
+import com.nest.core.post_management_service.exception.EditArticleFailException;
+import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,6 +44,21 @@ public class ArticleApiController {
             return ResponseEntity.ok(articleService.getArticles());
         } catch (Exception e) {
             throw new CreateArticleFailException("Failed to get articles: " + e.getMessage());
+        }
+    }
+
+    @PutMapping
+    public ResponseEntity<?> editArticle(@AuthenticationPrincipal UserDetails userDetails, @RequestBody EditArticleRequest editArticleRequest) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser){
+            Long userId = customUser.getUserId();
+            try {
+                EditArticleResponse editedPost = articleService.editArticle(editArticleRequest, userId);
+                return ResponseEntity.ok(editedPost);
+            } catch (Exception e) {
+                throw new EditArticleFailException("Failed to edit article: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
         }
     }
 }

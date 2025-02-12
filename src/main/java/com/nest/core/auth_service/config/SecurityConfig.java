@@ -73,6 +73,9 @@ public class SecurityConfig {
                                 HttpMethod.POST,"/api/v1/article"
                         ).hasAnyRole(MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         .requestMatchers(
+                                HttpMethod.PUT,"/api/v1/article"
+                        ).hasAnyRole(MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(
                                 HttpMethod.GET,"/api/v1/article"
                         ).permitAll()
                         .anyRequest().authenticated()
