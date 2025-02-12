@@ -4,9 +4,14 @@ import com.nest.core.member_management_service.exception.MemberNotFoundException
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.member_management_service.repository.MemberRepository;
 import com.nest.core.post_management_service.dto.CreateArticleRequest;
+import com.nest.core.post_management_service.dto.EditArticleRequest;
+import com.nest.core.post_management_service.dto.EditArticleResponse;
 import com.nest.core.post_management_service.dto.GetArticleResponse;
+import com.nest.core.post_management_service.exception.EditArticleFailException;
 import com.nest.core.post_management_service.model.Post;
+import com.nest.core.post_management_service.model.PostTag;
 import com.nest.core.post_management_service.repository.PostRepository;
+import com.nest.core.post_management_service.repository.PostTagRepository;
 import com.nest.core.tag_management_service.model.Tag;
 import com.nest.core.tag_management_service.repository.TagRepository;
 import com.nest.core.topic_management_service.model.Topic;
@@ -31,6 +36,7 @@ public class ArticleService {
     private final MemberRepository memberRepository;
     private final TopicRepository topicRepository;
     private final TagRepository tagRepository;
+    private final PostTagRepository postTagRepository;
 
     @Transactional
     public void createArticle(CreateArticleRequest createArticleRequest, Long userId) {
@@ -45,10 +51,20 @@ public class ArticleService {
                     .orElseThrow(() -> new RuntimeException("Topic not found"));
         }
 
+        Post post = createArticleRequest.toEntity(member, topic);
+
+        post = postRepository.save(post);
+
         Set<Tag> tags = createOrFindTags(createArticleRequest.getTagNames());
 
-        Post post = createArticleRequest.toEntity(member, topic, tags);
+        Post finalPost = post;
+        Set<PostTag> postTags = tags.stream()
+                .map(tag -> new PostTag(finalPost, tag))
+                .collect(Collectors.toSet());
 
+        postTagRepository.saveAll(postTags);
+
+        post.setPostTags(postTags);
         postRepository.save(post);
     }
 
@@ -56,6 +72,43 @@ public class ArticleService {
         return postRepository.findAll().stream()
                 .map(GetArticleResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public EditArticleResponse editArticle(EditArticleRequest editArticleRequest, Long userId) {
+        if (!editArticleRequest.getMemberId().equals(userId)) {
+            throw new EditArticleFailException("Not Authorized to edit this article");
+        }
+
+        Post post = postRepository.findById(editArticleRequest.getId())
+                .orElseThrow(() -> new EditArticleFailException("Article Not Found"));
+
+        post.setTitle(editArticleRequest.getTitle());
+        post.setContent(editArticleRequest.getContent());
+        post.setType(editArticleRequest.getType());
+
+        Topic topic = topicRepository.findById(editArticleRequest.getTopicId())
+                .orElseThrow(() -> new EditArticleFailException("Topic Not Found"));
+        post.setTopic(topic);
+
+        Set<Tag> newTags = createOrFindTags(editArticleRequest.getTagNames());
+
+        Set<PostTag> existingTags = post.getPostTags();
+        existingTags.removeIf(postTag -> !newTags.contains(postTag.getTag()));
+
+        for (Tag tag : newTags) {
+            boolean alreadyExists = existingTags.stream()
+                    .anyMatch(postTag -> postTag.getTag().equals(tag));
+
+            if (!alreadyExists) {
+                existingTags.add(new PostTag(post, tag));
+            }
+        }
+
+        postRepository.save(post);
+
+        return postRepository.findById(post.getId()).map(EditArticleResponse::new).stream().toList().get(0);
+
     }
 
 

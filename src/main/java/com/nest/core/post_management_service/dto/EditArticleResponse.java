@@ -1,16 +1,17 @@
 package com.nest.core.post_management_service.dto;
 
 import com.nest.core.post_management_service.model.Post;
-import com.nest.core.tag_management_service.model.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
-public class GetArticleResponse {
+@NoArgsConstructor
+public class EditArticleResponse {
     private Long id;
     private String topicName;
     private String title;
@@ -21,7 +22,7 @@ public class GetArticleResponse {
     private String memberAvatar;
     private Set<String> tagNames;
 
-    public GetArticleResponse(Post post){
+    public EditArticleResponse(Post post){
         this.id = post.getId();
         this.topicName = post.getTopic().getName();
         this.title = post.getTitle();
@@ -35,3 +36,4 @@ public class GetArticleResponse {
                 .collect(Collectors.toSet());
     }
 }
+

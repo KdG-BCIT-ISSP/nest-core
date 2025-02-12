@@ -1,6 +1,7 @@
 package com.nest.core.tag_management_service.model;
 
 import com.nest.core.post_management_service.model.Post;
+import com.nest.core.post_management_service.model.PostTag;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +24,7 @@ public class Tag {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "tags")
-    private Set<Post> posts = new HashSet<>();
+    @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<PostTag> postTags = new HashSet<>();  // Updated mapping
 
 }
