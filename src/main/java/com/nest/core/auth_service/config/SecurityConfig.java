@@ -70,6 +70,9 @@ public class SecurityConfig {
                                 "/api/v1/member/me"
                         ).hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         .requestMatchers(
+                                HttpMethod.DELETE,"/api/v1/article/**"
+                        ).hasAnyRole(MemberRole.ADMIN.name(), MemberRole.MODERATOR.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(
                                 HttpMethod.POST,"/api/v1/article"
                         ).hasAnyRole(MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         .requestMatchers(
