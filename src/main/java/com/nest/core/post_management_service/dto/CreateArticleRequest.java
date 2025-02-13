@@ -1,5 +1,8 @@
 package com.nest.core.post_management_service.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.topic_management_service.model.Topic;
@@ -19,6 +22,7 @@ public class CreateArticleRequest {
     private String type;
     private Long topicId;
     private Set<String> tagNames;
+    private String coverImage;
 
     public Post toEntity(Member member, Topic topic) {
         return Post.builder()
@@ -28,7 +32,23 @@ public class CreateArticleRequest {
                 .topic(topic)
                 .type(this.type)
                 .postTags(new HashSet<>())
+                .extraData(parseCoverImage())
                 .build();
+    }
+
+    private JsonNode parseCoverImage() {
+        if (coverImage == null || !coverImage.contains(",")) {
+            return null;
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode imageNode = objectMapper.createObjectNode();
+
+        String[] parts = coverImage.split(",", 2);
+        imageNode.put("imageType", parts[0]);
+        imageNode.put("imageData", parts[1]);
+
+        return imageNode;
     }
 }
 
