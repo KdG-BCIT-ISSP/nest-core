@@ -1,6 +1,6 @@
 package com.nest.core.member_management_service.dto;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.member_management_service.model.MemberRole;
 import lombok.Getter;
@@ -15,12 +15,12 @@ public class JoinMemberRequest {
     private String email;
     private String password;
     private String username;
-    private String avatar;
+    private JsonNode avatar;
 
     public Member toEntity(){
         return Member.builder()
                 .email(this.email)
-                .avatar(new ObjectMapper().createObjectNode().put("image", this.avatar))
+                .avatar(this.avatar)
                 .password(this.password)
                 .username(this.username)
                 .role(MemberRole.USER)
