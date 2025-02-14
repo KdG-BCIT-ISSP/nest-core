@@ -5,6 +5,7 @@ import com.nest.core.member_management_service.dto.GetProfileResponse;
 import com.nest.core.member_management_service.dto.JoinMemberRequest;
 import com.nest.core.member_management_service.dto.LoginMemberRequest;
 import com.nest.core.member_management_service.dto.UpdateProfileRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nest.core.auth_service.dto.LoginTokenDto;
 import com.nest.core.member_management_service.exception.DuplicateMemberFoundException;
 import com.nest.core.member_management_service.exception.InvalidPasswordException;
@@ -91,8 +92,9 @@ public class MemberService {
             updated = true;
         }
 
-        if (updateMemberRequest.getAvatar() != null && !updateMemberRequest.getAvatar().equals(findMember.getAvatar())) {
-            findMember.setAvatar(updateMemberRequest.getAvatar());
+        if (updateMemberRequest.getAvatar() != null && !updateMemberRequest.getAvatar().equals(findMember.getAvatar().get("image").asText())) {
+            ObjectMapper mapper = new ObjectMapper();
+            findMember.setAvatar(mapper.createObjectNode().put("image", updateMemberRequest.getAvatar()));
             updated = true;
         }
 
@@ -111,7 +113,7 @@ public class MemberService {
     }
 
     public GetProfileResponse getMember(Long userId) {
-        
+
         return memberRepository.findById(userId)
                 .map(GetProfileResponse::new)
                 .orElseThrow(() -> new MemberNotFoundException("Member not found for ID: " + userId));

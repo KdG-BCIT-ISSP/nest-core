@@ -18,7 +18,7 @@ public class GetProfileResponse {
         this.role = member.getRole();
         this.email = member.getEmail();
         this.username = member.getUsername();
-        this.avatar = member.getAvatar();
+        this.avatar = member.getAvatar().get("image").asText();
         this.region = member.getRegion();
     }
 }

@@ -30,7 +30,7 @@ public class GetArticleResponse {
         this.type = post.getType();
         this.memberId = post.getMember().getId();
         this.memberUsername = post.getMember().getUsername();
-        this.memberAvatar = post.getMember().getAvatar();
+        this.memberAvatar = post.getMember().getAvatar().get("image").asText();
         this.tagNames = post.getPostTags().stream()
                 .map(postTag -> postTag.getTag().getName())
                 .collect(Collectors.toSet());

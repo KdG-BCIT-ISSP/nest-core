@@ -1,5 +1,7 @@
 package com.nest.core.member_management_service.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nest.core.comment_management_service.model.Comment;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.report_management_service.model.Report;
@@ -7,6 +9,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Set;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Builder
@@ -29,7 +34,9 @@ public class Member {
     private String username;
 
     @Builder.Default
-    private String avatar = "https://cvhrma.org/wp-content/uploads/2015/07/default-profile-photo.jpg";
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private JsonNode avatar = new ObjectMapper().createObjectNode().put("image", "");
 
     private String password;
 
@@ -44,10 +51,11 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Report> reports;
 
+    @PostLoad
     @PrePersist
-    public void prePersist(){
+    public void presetAvatar(){
         if (this.avatar == null || this.avatar.isEmpty()) {
-            this.avatar = "https://cvhrma.org/wp-content/uploads/2015/07/default-profile-photo.jpg";
+            this.avatar = new ObjectMapper().createObjectNode().put("image", "");
         }
     }
 
