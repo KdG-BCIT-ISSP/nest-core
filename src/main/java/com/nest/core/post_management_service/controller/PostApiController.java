@@ -3,6 +3,7 @@ package com.nest.core.post_management_service.controller;
 import com.nest.core.auth_service.dto.CustomSecurityUserDetails;
 import com.nest.core.post_management_service.dto.CreatePostRequest;
 import com.nest.core.post_management_service.dto.EditPostRequest;
+import com.nest.core.post_management_service.exception.AddBookmarkFailException;
 import com.nest.core.post_management_service.exception.CreateArticleFailException;
 import com.nest.core.post_management_service.exception.CreatePostFailException;
 import com.nest.core.post_management_service.exception.EditArticleFailException;
@@ -74,6 +75,21 @@ public class PostApiController {
                 return ResponseEntity.ok("Post deleted");
             } catch (Exception e){
                 throw new EditArticleFailException("Failed to delete post: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+    }
+
+    @PostMapping("/bookmark/add/{postId}")
+    public ResponseEntity<?> bookmarkPost(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long postId) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            try {
+                postService.addBookmark(postId, userId);
+                return ResponseEntity.ok("Post bookmarked");
+            } catch (Exception e) {
+                throw new AddBookmarkFailException("Failed to save bookmark: " + e.getMessage());
             }
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
