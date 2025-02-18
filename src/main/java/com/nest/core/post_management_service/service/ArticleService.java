@@ -10,6 +10,7 @@ import com.nest.core.post_management_service.dto.CreateArticleRequest;
 import com.nest.core.post_management_service.dto.EditArticleRequest;
 import com.nest.core.post_management_service.dto.EditArticleResponse;
 import com.nest.core.post_management_service.dto.GetArticleResponse;
+import com.nest.core.post_management_service.exception.AddBookmarkFailException;
 import com.nest.core.post_management_service.exception.DeleteArticleFailException;
 import com.nest.core.post_management_service.exception.EditArticleFailException;
 import com.nest.core.post_management_service.model.Post;
@@ -133,6 +134,18 @@ public class ArticleService {
         postRepository.delete(post);
     }
 
+    public void addBookmark(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AddBookmarkFailException("Post not found"));
+
+        Member member = memberRepository.findById(userId)
+                .orElseThrow(() -> new AddBookmarkFailException("Member not found"));
+
+        member.getBookmarkedPosts().add(post);
+        post.getBookmarkedMembers().add(member);
+        memberRepository.save(member);
+        postRepository.save(post);
+    }
 
     private Set<Tag> createOrFindTags(Set<String> tagNames) {
         if (tagNames == null || tagNames.isEmpty()) {
