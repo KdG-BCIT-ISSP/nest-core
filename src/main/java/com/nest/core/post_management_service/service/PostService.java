@@ -112,6 +112,10 @@ public class PostService {
         Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new AddBookmarkFailException("Member not found"));
 
+        if (post.getBookmarkedMembers().contains(member)) {
+            throw new AddBookmarkFailException("Post already bookmarked");
+        }
+
         member.getBookmarkedPosts().add(post);
         post.getBookmarkedMembers().add(member);
         memberRepository.save(member);
