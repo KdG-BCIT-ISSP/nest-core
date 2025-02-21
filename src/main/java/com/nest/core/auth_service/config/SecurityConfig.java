@@ -96,6 +96,21 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.GET,"/api/v1/article"
                         ).permitAll()
+                        // Report-Management-Service
+                        .requestMatchers(
+                                HttpMethod.GET, "/api/v1/report/post/**"
+                        ).hasAnyRole(MemberRole.ADMIN.name(), MemberRole.MODERATOR.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(
+                                HttpMethod.GET, "/api/v1/report/article/**"
+                        ).hasAnyRole(MemberRole.ADMIN.name(), MemberRole.MODERATOR.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(
+                                HttpMethod.DELETE, "/api/v1/report/**"
+                        ).hasAnyRole(MemberRole.ADMIN.name(), MemberRole.MODERATOR.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(
+                                HttpMethod.POST, "/api/v1/report/post/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/report/article/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 ).exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint((request, response, authException) -> {
