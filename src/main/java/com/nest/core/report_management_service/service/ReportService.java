@@ -1,18 +1,24 @@
 package com.nest.core.report_management_service.service;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.nest.core.member_management_service.exception.MemberNotFoundException;
 import com.nest.core.member_management_service.model.Member;
+import com.nest.core.member_management_service.model.MemberRole;
 import com.nest.core.member_management_service.repository.MemberRepository;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.repository.PostRepository;
 import com.nest.core.report_management_service.dto.ReportPostRequest;
 import com.nest.core.report_management_service.exception.PostNotFoundException;
+import com.nest.core.report_management_service.exception.ReportDeleteFailException;
 import com.nest.core.report_management_service.model.Report;
 import com.nest.core.report_management_service.repository.ReportRepository;
+import com.nest.core.report_management_service.dto.GetPostReportsResponse;
+import com.nest.core.report_management_service.dto.GetArticleReportsResponse;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -53,5 +59,50 @@ public class ReportService {
         member.setReports(member.getReports());
         reportRepository.save(report);
         memberRepository.save(member);
+    }
+
+    @Transactional
+    public void deleteReport(Long reportId, Long userId) {
+        Report report = reportRepository.findById(reportId)
+            .orElseThrow(() -> new ReportDeleteFailException("Report not found"));
+
+        Member member = memberRepository.findById(userId)
+            .orElseThrow(() -> new MemberNotFoundException("Member not found"));
+
+        if (member.getRole() == MemberRole.ADMIN || member.getRole() == MemberRole.MODERATOR || member.getRole() == MemberRole.SUPER_ADMIN) {
+            reportRepository.delete(report);
+        } else {
+            throw new ReportDeleteFailException("Not authorized to delete reports");
+        }
+    }
+
+    public List<GetPostReportsResponse> getPostReports(Long postId, Long userId) {
+
+        Member member = memberRepository.findById(userId)
+            .orElseThrow(() -> new MemberNotFoundException("Member not found"));
+        postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found"));
+
+        if (member.getRole() != MemberRole.ADMIN && member.getRole() != MemberRole.MODERATOR && member.getRole() != MemberRole.SUPER_ADMIN) {
+            throw new ReportDeleteFailException("Not authorized to view reports");
+        }
+
+        return reportRepository.findAllPostReports(postId).stream()
+                .map(GetPostReportsResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<GetArticleReportsResponse> getArticleReports(Long postId, Long userId) {
+
+        Member member = memberRepository.findById(userId)
+            .orElseThrow(() -> new MemberNotFoundException("Member not found"));
+        postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found"));
+
+        if (member.getRole() != MemberRole.ADMIN && member.getRole() != MemberRole.MODERATOR && member.getRole() != MemberRole.SUPER_ADMIN) {
+            throw new ReportDeleteFailException("Not authorized to view reports");
+        }
+
+        return reportRepository.findAllArticleReports(postId).stream()
+                .map(GetArticleReportsResponse::new)
+                .collect(Collectors.toList());
     }
 }
