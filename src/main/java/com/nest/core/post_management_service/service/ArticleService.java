@@ -13,6 +13,7 @@ import com.nest.core.post_management_service.dto.GetArticleResponse;
 import com.nest.core.post_management_service.exception.AddBookmarkFailException;
 import com.nest.core.post_management_service.exception.DeleteArticleFailException;
 import com.nest.core.post_management_service.exception.EditArticleFailException;
+import com.nest.core.post_management_service.exception.RemoveBookmarkFailException;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.model.PostTag;
 import com.nest.core.post_management_service.repository.PostRepository;
@@ -147,6 +148,23 @@ public class ArticleService {
 
         member.getBookmarkedPosts().add(post);
         post.getBookmarkedMembers().add(member);
+        memberRepository.save(member);
+        postRepository.save(post);
+    }
+
+    public void removeBookmark(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AddBookmarkFailException("Article not found"));
+
+        Member member = memberRepository.findById(userId)
+                .orElseThrow(() -> new AddBookmarkFailException("Member not found"));
+
+        if (!post.getBookmarkedMembers().contains(member)) {
+            throw new RemoveBookmarkFailException("Article was never bookmarked");
+        }
+
+        member.getBookmarkedPosts().remove(post);
+        post.getBookmarkedMembers().remove(member);
         memberRepository.save(member);
         postRepository.save(post);
     }

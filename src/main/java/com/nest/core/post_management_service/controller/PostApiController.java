@@ -95,4 +95,19 @@ public class PostApiController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
         }
     }
+
+    @DeleteMapping("/bookmark/remove/{postId}")
+    public ResponseEntity<?> removeBookmark(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long postId) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            try {
+                postService.removeBookmark(postId, userId);
+                return ResponseEntity.ok("Bookmarked post removed");
+            } catch (Exception e) {
+                throw new AddBookmarkFailException("Failed to remove bookmark: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+    }
 }

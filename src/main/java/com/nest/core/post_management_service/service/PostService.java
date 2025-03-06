@@ -122,6 +122,23 @@ public class PostService {
         postRepository.save(post);
     }
 
+    public void removeBookmark(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RemoveBookmarkFailException("Post not found"));
+
+        Member member = memberRepository.findById(userId)
+                .orElseThrow(() -> new RemoveBookmarkFailException("Member not found"));
+
+        if (!post.getBookmarkedMembers().contains(member)) {
+            throw new RemoveBookmarkFailException("Post not never bookmarked");
+        }
+
+        member.getBookmarkedPosts().remove(post);
+        post.getBookmarkedMembers().remove(member);
+        memberRepository.save(member);
+        postRepository.save(post);
+    }
+
     /**
      * Helper methods
      */

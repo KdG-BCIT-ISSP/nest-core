@@ -10,6 +10,7 @@ import com.nest.core.post_management_service.exception.CreateArticleFailExceptio
 import com.nest.core.post_management_service.exception.DeleteArticleFailException;
 import com.nest.core.post_management_service.exception.EditArticleFailException;
 import com.nest.core.post_management_service.exception.GetArticleFailException;
+import com.nest.core.post_management_service.exception.RemoveBookmarkFailException;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.service.ArticleService;
 import lombok.RequiredArgsConstructor;
@@ -98,6 +99,23 @@ public class ArticleApiController {
             } catch (Exception e) {
                 throw new AddBookmarkFailException("Failed to save bookmark: " + e.getMessage());
             }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+    }
+
+    @DeleteMapping("/bookmark/remove/{postId}")
+    public ResponseEntity<?> removeBookmark(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long postId) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            try {
+                articleService.removeBookmark(postId, userId);
+                return ResponseEntity.ok("Bookmarked article removed");
+
+            } catch (Exception e) {
+                throw new RemoveBookmarkFailException("Failed to remove bookmark: " + e.getMessage());
+            }
+
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
         }
