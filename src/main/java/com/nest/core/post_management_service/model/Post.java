@@ -43,6 +43,14 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<PostImage> postImages;
 
+    @ManyToMany
+    @JoinTable(
+            name = "bookmark",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "member_id")
+    )
+    private Set<Member> bookmarkedMembers;
+
     private String type;
 
     @Column(name="likes_count")

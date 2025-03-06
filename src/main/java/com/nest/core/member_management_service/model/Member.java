@@ -51,6 +51,9 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Report> reports;
 
+    @ManyToMany(mappedBy = "bookmarkedMembers", cascade = CascadeType.ALL)
+    private Set<Post> bookmarkedPosts;
+
     @PostLoad
     @PrePersist
     public void presetAvatar(){
