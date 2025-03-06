@@ -99,6 +99,19 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.GET,"/api/v1/article"
                         ).permitAll()
+                        // Comment-Management-Service
+                        .requestMatchers(
+                                HttpMethod.DELETE,"/api/v1/comment/**"
+                        ).hasAnyRole(MemberRole.USER.name(),MemberRole.ADMIN.name(), MemberRole.MODERATOR.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(
+                                HttpMethod.POST,"/api/v1/comment"
+                        ).hasAnyRole(MemberRole.USER.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(
+                                HttpMethod.PUT,"/api/v1/comment"
+                        ).hasAnyRole(MemberRole.USER.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(
+                                HttpMethod.GET,"/api/v1/comment"
+                        ).hasAnyRole(MemberRole.USER.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         // Report-Management-Service
                         .requestMatchers(
                                 HttpMethod.GET, "/api/v1/report/post/**"

@@ -1,7 +1,8 @@
 package com.nest.core.post_management_service.dto;
 
+import com.nest.core.comment_management_service.dto.GetCommentResponse;
+import com.nest.core.comment_management_service.model.Comment;
 import com.nest.core.post_management_service.model.Post;
-import com.nest.core.tag_management_service.model.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -20,6 +21,7 @@ public class GetArticleResponse {
     private String memberUsername;
     private String memberAvatar;
     private Set<String> tagNames;
+    private Set<GetCommentResponse> comment;
     private String coverImage;
 
     public GetArticleResponse(Post post){
@@ -33,6 +35,9 @@ public class GetArticleResponse {
         this.memberAvatar = post.getMember().getAvatar().get("image").asText();
         this.tagNames = post.getPostTags().stream()
                 .map(postTag -> postTag.getTag().getName())
+                .collect(Collectors.toSet());
+        this.comment = post.getComments().stream()
+                .map(GetCommentResponse::new)
                 .collect(Collectors.toSet());
         if (post.getExtraData() != null && post.getExtraData().has("imageType") && post.getExtraData().has("imageData")) {
             this.coverImage = post.getExtraData().get("imageType").asText() + "," + post.getExtraData().get("imageData").asText();
