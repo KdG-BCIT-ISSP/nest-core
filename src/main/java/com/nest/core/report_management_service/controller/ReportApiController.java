@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.nest.core.auth_service.dto.CustomSecurityUserDetails;
 import com.nest.core.report_management_service.dto.ReportPostRequest;
+import com.nest.core.report_management_service.exception.ReportDeleteFailException;
+import com.nest.core.report_management_service.exception.ReportGetFailException;
 import com.nest.core.report_management_service.exception.ReportPostFailException;
 import com.nest.core.report_management_service.service.ReportService;
 
@@ -21,6 +23,49 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/report")
 public class ReportApiController {
     private final ReportService reportService;
+
+    @GetMapping("/post/{postId}")
+    public ResponseEntity<?> getPostReports(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long postId) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            try {
+                return ResponseEntity.ok(reportService.getPostReports(postId, userId));
+            } catch (Exception e) {
+                throw new ReportGetFailException("Failed to get post reports: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+    }
+
+    @GetMapping("/article/{postId}")
+    public ResponseEntity<?> getArticleReports(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long postId) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            try {
+                return ResponseEntity.ok(reportService.getArticleReports(postId, userId));
+            } catch (Exception e) {
+                throw new ReportGetFailException("Failed to get article reports: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+    }
+
+    @DeleteMapping("/{reportId}")
+    public ResponseEntity<?> deleteReport(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long reportId) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            try {
+                reportService.deleteReport(reportId, userId);
+                return ResponseEntity.ok("Report deleted");
+            } catch (Exception e) {
+                throw new ReportDeleteFailException("Failed to delete report: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+    }
 
     @PostMapping("/post/{postId}")
     public ResponseEntity<?> reportPost(
