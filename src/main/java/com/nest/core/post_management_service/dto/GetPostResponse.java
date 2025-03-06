@@ -1,5 +1,6 @@
 package com.nest.core.post_management_service.dto;
 
+import com.nest.core.comment_management_service.model.Comment;
 import com.nest.core.post_management_service.model.Post;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class GetPostResponse {
     private String memberUsername;
     private String memberAvatar;
     private Set<String> tagNames;
+    private Set<Comment> comment;
     private List<String> imageBase64;
 
     public GetPostResponse(Post post){
@@ -33,6 +35,7 @@ public class GetPostResponse {
         this.tagNames = post.getPostTags().stream()
                 .map(postTag -> postTag.getTag().getName())
                 .collect(Collectors.toSet());
+        this.comment = post.getComments();
         this.imageBase64 = post.getPostImages().stream()
                 .map(image -> image.getImageType() + "," + Base64.getEncoder().encodeToString(image.getImageData()))
                 .collect(Collectors.toList());

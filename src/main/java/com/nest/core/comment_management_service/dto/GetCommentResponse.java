@@ -1,5 +1,6 @@
 package com.nest.core.comment_management_service.dto;
 
+import com.nest.core.comment_management_service.model.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,4 +17,18 @@ public class GetCommentResponse {
     private String content;
     private Date createAt;
     private boolean isEdit;
+
+    /**
+     * For GetArticleResponse
+     *
+     * @param comment Comment
+     */
+    public GetCommentResponse(Comment comment) {
+        this.id = comment.getId();
+        this.postId = comment.getPost().getId();
+        this.memberId = comment.getMember().getId();
+        this.content = comment.getContent();
+        this.createAt = comment.getCreateAt();
+        this.isEdit = comment.isEdit();
+    }
 }
