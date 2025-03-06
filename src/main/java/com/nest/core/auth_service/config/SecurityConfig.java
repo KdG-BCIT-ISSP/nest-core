@@ -114,6 +114,10 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/report/article/**"
                         ).permitAll()
+                        // Content-Management-Service (Interaction with content)
+                        .requestMatchers(
+                                HttpMethod.GET,"/api/v1/content/**"
+                        ).hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         .anyRequest().authenticated()
                 ).exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint((request, response, authException) -> {

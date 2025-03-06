@@ -54,10 +54,10 @@ public class Post {
     private String type;
 
     @Column(name="likes_count")
-    private int likesCount;
+    private Long likesCount;
 
     @Column(name="view_count")
-    private int viewCount;
+    private Long viewCount;
 
     @Column(name="share_count")
     private int shareCount;
