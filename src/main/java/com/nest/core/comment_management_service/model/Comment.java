@@ -40,4 +40,7 @@ public class Comment {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createAt;
 
+    @Column(name = "likes_count", nullable = false)
+    private Long likesCount;
+
 }
