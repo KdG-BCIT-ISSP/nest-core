@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
 import com.nest.core.auth_service.dto.CustomSecurityUserDetails;
+import com.nest.core.report_management_service.dto.ReportCommentRequest;
 import com.nest.core.report_management_service.dto.ReportPostRequest;
+import com.nest.core.report_management_service.exception.ReportCommentFailException;
 import com.nest.core.report_management_service.exception.ReportDeleteFailException;
 import com.nest.core.report_management_service.exception.ReportGetFailException;
 import com.nest.core.report_management_service.exception.ReportPostFailException;
@@ -92,5 +94,24 @@ public class ReportApiController {
         @RequestBody ReportPostRequest report,
         @PathVariable Long postId) {
         return reportPost(userDetails, report, postId);
+    }
+
+    @PostMapping("/comment/{commentId}")
+    public ResponseEntity<?> reportComment(@AuthenticationPrincipal UserDetails userDetails,
+        @RequestBody ReportCommentRequest report,
+        @PathVariable Long commentId) {
+
+            if (userDetails instanceof CustomSecurityUserDetails customUser) {
+                Long userId = customUser.getUserId();
+                try {
+                    reportService.createCommentReport(report, userId, commentId);
+                    return ResponseEntity.ok("Comment reported");
+
+                } catch (Exception e) {
+                    throw new ReportCommentFailException("Failed to report comment: " + e.getMessage());
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+            }
     }
 }
