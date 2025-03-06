@@ -2,6 +2,10 @@ package com.nest.core.exception;
 
 import com.nest.core.auth_service.controller.AuthApiController;
 import com.nest.core.auth_service.exception.RefreshTokenExpiredException;
+import com.nest.core.comment_management_service.exception.CreateCommentFailException;
+import com.nest.core.comment_management_service.exception.DeleteCommentFailException;
+import com.nest.core.comment_management_service.exception.EditCommentFailException;
+import com.nest.core.comment_management_service.exception.GetCommentFailException;
 import com.nest.core.member_management_service.controller.MemberApiController;
 import com.nest.core.member_management_service.exception.DuplicateMemberFoundException;
 import com.nest.core.member_management_service.exception.InvalidPasswordException;
@@ -61,6 +65,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 
+    /**
+     * Comment_Management_Service Exception
+     */
+    @ExceptionHandler(CreateCommentFailException.class)
+    public ResponseEntity<String> handleCreateCommentFailException(CreateCommentFailException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(EditCommentFailException.class)
+    public ResponseEntity<String> handleEditCommentFailException(EditCommentFailException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(GetCommentFailException.class)
+    public ResponseEntity<String> handleGetCommentFailException(GetCommentFailException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(DeleteCommentFailException.class)
+    public ResponseEntity<String> handleDeleteCommentFailException(DeleteCommentFailException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
 
     /**
      * General Exception

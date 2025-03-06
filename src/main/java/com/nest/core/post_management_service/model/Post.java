@@ -2,6 +2,7 @@ package com.nest.core.post_management_service.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.nest.core.comment_management_service.model.Comment;
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.topic_management_service.model.Topic;
 import jakarta.persistence.*;
@@ -26,6 +27,7 @@ public class Post {
 
     private String title;
 
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,6 +44,9 @@ public class Post {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<PostImage> postImages;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Comment> comments;
 
     @ManyToMany
     @JoinTable(
