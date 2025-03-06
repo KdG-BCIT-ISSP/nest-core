@@ -13,12 +13,15 @@ import com.nest.core.member_management_service.repository.MemberRepository;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.repository.PostRepository;
 import com.nest.core.report_management_service.dto.ReportPostRequest;
+import com.nest.core.report_management_service.exception.CommentNotFoundException;
 import com.nest.core.report_management_service.exception.PostNotFoundException;
 import com.nest.core.report_management_service.exception.ReportDeleteFailException;
 import com.nest.core.report_management_service.model.Report;
 import com.nest.core.report_management_service.repository.ReportRepository;
 import com.nest.core.report_management_service.dto.GetPostReportsResponse;
+import com.nest.core.report_management_service.dto.ReportCommentRequest;
 import com.nest.core.report_management_service.dto.GetArticleReportsResponse;
+import com.nest.core.comment_management_service.repository.CommentRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +35,7 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public void createPostReport(ReportPostRequest reportRequest, Long userId, Long postId) {
@@ -55,6 +59,33 @@ public class ReportService {
                 return;
             }
         }
+        member.getReports().add(report);
+        member.setReports(member.getReports());
+        reportRepository.save(report);
+        memberRepository.save(member);
+    }
+
+    @Transactional
+    public void createCommentReport(ReportCommentRequest reportRequest, Long userId, Long commentId) {
+        Member member = memberRepository.findById(userId)
+            .orElseThrow(() -> new MemberNotFoundException("Member not found"));
+
+        if (!commentRepository.existsById(commentId)) {
+            throw new CommentNotFoundException("Comment not found");
+        }
+        Report report = reportRequest.toEntity(member, commentId);
+
+        // For editing reports if already reported
+        Set<Report> memberReports = member.getReports();
+        for (Report r : memberReports) {
+            if (r.getCommentId().equals(commentId)) {
+                r.setReason(report.getReason());
+                r.setCreatedAt(report.getCreatedAt());
+                reportRepository.save(r);
+                return;
+            }
+        }
+        // For creating new reports
         member.getReports().add(report);
         member.setReports(member.getReports());
         reportRepository.save(report);

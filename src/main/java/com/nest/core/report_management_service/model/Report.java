@@ -21,8 +21,9 @@ public class Report {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "post_id", referencedColumnName = "id", nullable = false)
-    private Post post;
+    @Builder.Default
+    @JoinColumn(name = "post_id", referencedColumnName = "id")
+    private Post post = null;
 
     @ManyToOne
     @JoinColumn(name = "member_id", referencedColumnName = "id", nullable = false)
