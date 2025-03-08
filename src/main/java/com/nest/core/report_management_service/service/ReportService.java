@@ -21,6 +21,7 @@ import com.nest.core.report_management_service.repository.ReportRepository;
 import com.nest.core.report_management_service.dto.GetPostReportsResponse;
 import com.nest.core.report_management_service.dto.ReportCommentRequest;
 import com.nest.core.report_management_service.dto.GetArticleReportsResponse;
+import com.nest.core.report_management_service.dto.GetCommentReportResponse;
 import com.nest.core.comment_management_service.repository.CommentRepository;
 
 import jakarta.transaction.Transactional;
@@ -122,6 +123,20 @@ public class ReportService {
                 .collect(Collectors.toList());
     }
 
+    public List<GetPostReportsResponse> getAllPostReports(Long userId) {
+
+        Member member = memberRepository.findById(userId)
+            .orElseThrow(() -> new MemberNotFoundException("Member not found"));
+
+        if (member.getRole() != MemberRole.ADMIN && member.getRole() != MemberRole.MODERATOR && member.getRole() != MemberRole.SUPER_ADMIN) {
+            throw new ReportDeleteFailException("Not authorized to view reports");
+        }
+
+        return reportRepository.findAllArticleReports().stream()
+                .map(GetPostReportsResponse::new)
+                .collect(Collectors.toList());
+    }
+
     public List<GetArticleReportsResponse> getArticleReports(Long postId, Long userId) {
 
         Member member = memberRepository.findById(userId)
@@ -134,6 +149,34 @@ public class ReportService {
 
         return reportRepository.findAllArticleReports(postId).stream()
                 .map(GetArticleReportsResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<GetArticleReportsResponse> getAllArticleReports(Long userId) {
+
+        Member member = memberRepository.findById(userId)
+            .orElseThrow(() -> new MemberNotFoundException("Member not found"));
+
+        if (member.getRole() != MemberRole.ADMIN && member.getRole() != MemberRole.MODERATOR && member.getRole() != MemberRole.SUPER_ADMIN) {
+            throw new ReportDeleteFailException("Not authorized to view reports");
+        }
+
+        return reportRepository.findAllArticleReports().stream()
+                .map(GetArticleReportsResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<GetCommentReportResponse> getAllCommentReports(Long userId) {
+
+        Member member = memberRepository.findById(userId)
+            .orElseThrow(() -> new MemberNotFoundException("Member not found"));
+
+        if (member.getRole() != MemberRole.ADMIN && member.getRole() != MemberRole.MODERATOR && member.getRole() != MemberRole.SUPER_ADMIN) {
+            throw new ReportDeleteFailException("Not authorized to view reports");
+        }
+
+        return reportRepository.findAllCommentReports().stream()
+                .map(GetCommentReportResponse::new)
                 .collect(Collectors.toList());
     }
 }
