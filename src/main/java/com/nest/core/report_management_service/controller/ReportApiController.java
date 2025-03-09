@@ -40,6 +40,20 @@ public class ReportApiController {
         }
     }
 
+    @GetMapping("/post")
+    public ResponseEntity<?> getAllPostReports(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            try {
+                return ResponseEntity.ok(reportService.getAllPostReports(userId));
+            } catch (Exception e) {
+                throw new ReportGetFailException("Failed to get all post reports: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+    }
+
     @GetMapping("/article/{postId}")
     public ResponseEntity<?> getArticleReports(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long postId) {
         if (userDetails instanceof CustomSecurityUserDetails customUser) {
@@ -48,6 +62,20 @@ public class ReportApiController {
                 return ResponseEntity.ok(reportService.getArticleReports(postId, userId));
             } catch (Exception e) {
                 throw new ReportGetFailException("Failed to get article reports: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+    }
+
+    @GetMapping("/article")
+    public ResponseEntity<?> getAllArticleReports(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            try {
+                return ResponseEntity.ok(reportService.getAllArticleReports(userId));
+            } catch (Exception e) {
+                throw new ReportGetFailException("Failed to get all article reports: " + e.getMessage());
             }
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
@@ -113,5 +141,19 @@ public class ReportApiController {
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
             }
+    }
+
+    @GetMapping("/comment")
+    public ResponseEntity<?> getAllCommentReports(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            try {
+                return ResponseEntity.ok(reportService.getAllCommentReports(userId));
+            } catch (Exception e) {
+                throw new ReportGetFailException("Failed to get all comment reports: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
     }
 }

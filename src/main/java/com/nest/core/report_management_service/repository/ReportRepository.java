@@ -15,4 +15,13 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
 
     @Query("SELECT r FROM Report r WHERE r.post.id = :postId AND r.post.type = 'USERPOST'")
     List<Report> findAllPostReports(@Param("postId") Long postId);
+
+    @Query("SELECT r FROM Report r WHERE r.post.type = 'ARTICLE'")
+    List<Report> findAllArticleReports();
+
+    @Query("SELECT r FROM Report r WHERE r.post.type = 'USERPOST'")
+    List<Report> findAllPostReports();
+
+    @Query("SELECT r FROM Report r WHERE r.post IS NULL")
+    List<Report> findAllCommentReports();
 }
