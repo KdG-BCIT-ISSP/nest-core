@@ -132,7 +132,7 @@ public class ReportService {
             throw new ReportDeleteFailException("Not authorized to view reports");
         }
 
-        return reportRepository.findAllArticleReports().stream()
+        return reportRepository.findAllPostReports().stream()
                 .map(GetPostReportsResponse::new)
                 .collect(Collectors.toList());
     }
