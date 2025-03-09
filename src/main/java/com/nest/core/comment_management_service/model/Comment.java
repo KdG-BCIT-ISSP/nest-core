@@ -40,7 +40,8 @@ public class Comment {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createAt;
 
+    @Builder.Default
     @Column(name = "likes_count", nullable = false)
-    private Long likesCount;
+    private Long likesCount = 0L;
 
 }
