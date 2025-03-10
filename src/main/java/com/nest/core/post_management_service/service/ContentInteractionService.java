@@ -39,6 +39,7 @@ public class ContentInteractionService {
 
         Long postId = Long.valueOf(key.split(":")[2]);
         T dbValue = postRepository.findById(postId).map(extractor).orElse(null);
+        assert dbValue != null;
         redisTemplate.opsForValue().set(key, dbValue);
         return dbValue;
     }
@@ -77,6 +78,12 @@ public class ContentInteractionService {
     }
 
     public Long getViews(Long postId) {
+        Object cachedValue = redisTemplate.opsForValue().get(getViewKey(postId));
+        if (cachedValue instanceof Integer) {
+            return ((Integer) cachedValue).longValue();
+        } else if (cachedValue instanceof Long) {
+            return (Long) cachedValue;
+        }
         return getFromCacheOrDb(getViewKey(postId), Post::getViewCount);
     }
 
@@ -121,7 +128,15 @@ public class ContentInteractionService {
         Set<Object> userIds = redisTemplate.opsForSet().members(getLikeKey(postId));
         if (userIds != null) {
             for (Object userId : userIds) {
-                saveLike(postId, Long.valueOf((String) userId));
+                Long memberId;
+                if (userId instanceof Integer) {
+                    memberId = ((Integer) userId).longValue();
+                } else if (userId instanceof String) {
+                    memberId = Long.valueOf((String) userId);
+                } else {
+                    memberId = (Long) userId;
+                }
+                saveLike(postId, memberId);
             }
             Long likes = postLikeRepository.countByPostId(postId);
             postRepository.updateLikes(postId, likes);
@@ -132,10 +147,9 @@ public class ContentInteractionService {
     @Transactional
     protected void syncViews(Long postId) {
         Long views = getViews(postId);
-        postRepository.updateViews(postId, views);
+        postRepository.updateViews(postId, views != null ? views : 0L);
         redisTemplate.delete(getViewKey(postId));
     }
-
     @Transactional
     public void saveLike(Long postId, Long memberId) {
         if (postLikeRepository.existsByPostIdAndMemberId(postId, memberId) || memberId == 0) {
