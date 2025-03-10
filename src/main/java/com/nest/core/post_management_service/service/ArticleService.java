@@ -74,9 +74,9 @@ public class ArticleService {
         postRepository.save(post);
     }
 
-    public List<GetArticleResponse> getArticles() {
+    public List<GetArticleResponse> getArticles(Long userId) {
         return postRepository.findAllArticles().stream()
-                .map(GetArticleResponse::new)
+                .map(post -> new GetArticleResponse(post, userId))
                 .collect(Collectors.toList());
     }
 

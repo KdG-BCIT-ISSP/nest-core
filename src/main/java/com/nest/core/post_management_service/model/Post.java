@@ -48,6 +48,9 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Comment> comments;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<PostLike> postLikes;
+
     @ManyToMany
     @JoinTable(
             name = "bookmark",
@@ -66,8 +69,9 @@ public class Post {
     @Column(name="view_count")
     private Long viewCount = 0L;
 
+    @Builder.Default
     @Column(name="share_count")
-    private int shareCount;
+    private int shareCount = 0;
 
     @Column(name = "extra_data", columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)

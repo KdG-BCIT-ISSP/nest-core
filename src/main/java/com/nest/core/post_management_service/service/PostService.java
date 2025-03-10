@@ -44,12 +44,11 @@ public class PostService {
         saveImages(createPostRequest, createdPost);
     }
 
-    public List<GetPostResponse> getPosts() {
+    public List<GetPostResponse> getPosts(Long userId) {
         return postRepository.findAllPosts().stream()
-                .map(GetPostResponse::new)
+                .map(post -> new GetPostResponse(post, userId))
                 .collect(Collectors.toList());
     }
-
     @Transactional
     public EditPostResponse editPost(EditPostRequest editPostRequest, Long userId) {
         if (!editPostRequest.getMemberId().equals(userId)) {

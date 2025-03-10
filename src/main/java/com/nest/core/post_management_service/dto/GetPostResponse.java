@@ -23,8 +23,13 @@ public class GetPostResponse {
     private Set<String> tagNames;
     private Set<Comment> comment;
     private List<String> imageBase64;
+    private Long likesCount;
+    private Long viewCount;
+    private int shareCount;
+    private boolean isBookmarked;
+    private boolean isLiked;
 
-    public GetPostResponse(Post post){
+    public GetPostResponse(Post post, Long userId){
         this.id = post.getId();
         this.title = post.getTitle();
         this.content = post.getContent();
@@ -39,6 +44,14 @@ public class GetPostResponse {
         this.imageBase64 = post.getPostImages().stream()
                 .map(image -> image.getImageType() + "," + Base64.getEncoder().encodeToString(image.getImageData()))
                 .collect(Collectors.toList());
-    }
+        this.isBookmarked = (userId != null && post.getBookmarkedMembers().stream()
+                .anyMatch(member -> member.getId().equals(userId)));
 
+        this.isLiked = (userId != null && post.getPostLikes().stream()
+                .anyMatch(postLike -> postLike.getMember().getId().equals(userId)));
+
+        this.likesCount = post.getLikesCount();
+        this.viewCount = post.getViewCount();
+        this.shareCount = post.getShareCount();
+    }
 }

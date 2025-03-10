@@ -46,9 +46,15 @@ public class ArticleApiController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getArticles() {
+    public ResponseEntity<?> getArticles(@AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = null;
+
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            userId = customUser.getUserId();
+        }
+
         try {
-            return ResponseEntity.ok(articleService.getArticles());
+            return ResponseEntity.ok(articleService.getArticles(userId));
         } catch (Exception e) {
             throw new GetArticleFailException("Failed to get articles: " + e.getMessage());
         }
