@@ -23,7 +23,11 @@ public class GetArticleResponse {
     private Set<String> tagNames;
     private Set<GetCommentResponse> comment;
     private String coverImage;
+    private Long likesCount;
+    private Long viewCount;
+    private int shareCount;
     private boolean isBookmarked;
+    private boolean isLiked;
 
     public GetArticleResponse(Post post, Long userId){
         this.id = post.getId();
@@ -47,5 +51,13 @@ public class GetArticleResponse {
         }
         this.isBookmarked = (userId != null && post.getBookmarkedMembers().stream()
                 .anyMatch(member -> member.getId().equals(userId)));
+
+        this.isLiked = (userId != null && post.getPostLikes().stream()
+                .anyMatch(postLike -> postLike.getMember().getId().equals(userId)));
+
+        this.likesCount = post.getLikesCount();
+        this.viewCount = post.getViewCount();
+        this.shareCount = post.getShareCount();
+
     }
 }
