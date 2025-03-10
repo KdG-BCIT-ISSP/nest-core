@@ -2,8 +2,11 @@ package com.nest.core.post_management_service.service;
 
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.member_management_service.repository.MemberRepository;
+import com.nest.core.post_management_service.dto.GetArticleResponse;
+import com.nest.core.post_management_service.dto.GetPostResponse;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.model.PostLike;
+import com.nest.core.post_management_service.repository.BookmarkRepository;
 import com.nest.core.post_management_service.repository.PostLikeRepository;
 import com.nest.core.post_management_service.repository.PostRepository;
 import jakarta.transaction.Transactional;
@@ -12,7 +15,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -22,7 +27,7 @@ public class ContentInteractionService {
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final MemberRepository memberRepository;
-
+    private final BookmarkRepository bookmarkRepository;
     private String getLikeKey(Long postId) {
         return "content:likes:" + postId;
     }
@@ -168,4 +173,19 @@ public class ContentInteractionService {
 
         postLikeRepository.save(postLike);
     }
+
+
+    public List<GetArticleResponse> getAllBookmarkedArticle(Long userId) {
+        return bookmarkRepository.findBookmarkedArticlesByMemberId(userId).stream()
+                .map(GetArticleResponse::new)
+                .collect(Collectors.toList());
+    }
+    public List<GetPostResponse> getAllBookmarkedPost(Long userId) {
+        return bookmarkRepository.findBookmarkedPostsByMemberId(userId).stream()
+                .map(GetPostResponse::new)
+                .collect(Collectors.toList());
+    }
+
+
+
 }
