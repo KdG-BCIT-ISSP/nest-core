@@ -56,4 +56,27 @@ public class ContentInteractionController {
     public ResponseEntity<Long> getViews(@PathVariable Long contentId) {
         return ResponseEntity.ok(interactionService.getViews(contentId));
     }
+
+    @GetMapping("/article/bookmark")
+    public ResponseEntity<?> getBookmarkedArticle(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            return ResponseEntity.ok(interactionService.getAllBookmarkedArticle(userId));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+        }
+    }
+
+    @GetMapping("/post/bookmark")
+    public ResponseEntity<?> getBookmarkedPost(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            return ResponseEntity.ok(interactionService.getAllBookmarkedPost(userId));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+        }
+    }
 }
