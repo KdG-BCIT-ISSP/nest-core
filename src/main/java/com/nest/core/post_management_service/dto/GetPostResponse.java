@@ -23,8 +23,9 @@ public class GetPostResponse {
     private Set<String> tagNames;
     private Set<Comment> comment;
     private List<String> imageBase64;
+    private boolean isBookmarked;
 
-    public GetPostResponse(Post post){
+    public GetPostResponse(Post post, Long userId){
         this.id = post.getId();
         this.title = post.getTitle();
         this.content = post.getContent();
@@ -39,6 +40,7 @@ public class GetPostResponse {
         this.imageBase64 = post.getPostImages().stream()
                 .map(image -> image.getImageType() + "," + Base64.getEncoder().encodeToString(image.getImageData()))
                 .collect(Collectors.toList());
+        this.isBookmarked = (userId != null && post.getBookmarkedMembers().stream()
+                .anyMatch(member -> member.getId().equals(userId)));
     }
-
 }

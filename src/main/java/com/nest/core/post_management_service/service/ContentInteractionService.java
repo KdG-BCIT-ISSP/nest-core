@@ -177,12 +177,12 @@ public class ContentInteractionService {
 
     public List<GetArticleResponse> getAllBookmarkedArticle(Long userId) {
         return bookmarkRepository.findBookmarkedArticlesByMemberId(userId).stream()
-                .map(GetArticleResponse::new)
+                .map(post -> new GetArticleResponse(post, userId))
                 .collect(Collectors.toList());
     }
     public List<GetPostResponse> getAllBookmarkedPost(Long userId) {
         return bookmarkRepository.findBookmarkedPostsByMemberId(userId).stream()
-                .map(GetPostResponse::new)
+                .map(post -> new GetPostResponse(post, userId))
                 .collect(Collectors.toList());
     }
 

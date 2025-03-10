@@ -3,11 +3,7 @@ package com.nest.core.post_management_service.controller;
 import com.nest.core.auth_service.dto.CustomSecurityUserDetails;
 import com.nest.core.post_management_service.dto.CreatePostRequest;
 import com.nest.core.post_management_service.dto.EditPostRequest;
-import com.nest.core.post_management_service.exception.AddBookmarkFailException;
-import com.nest.core.post_management_service.exception.CreateArticleFailException;
-import com.nest.core.post_management_service.exception.CreatePostFailException;
-import com.nest.core.post_management_service.exception.EditArticleFailException;
-import com.nest.core.post_management_service.exception.GetPostFailException;
+import com.nest.core.post_management_service.exception.*;
 import com.nest.core.post_management_service.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,9 +36,14 @@ public class PostApiController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getPosts() {
+    public ResponseEntity<?> getPosts(@AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = null;
+
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            userId = customUser.getUserId();
+        }
         try {
-            return ResponseEntity.ok(postService.getPosts());
+            return ResponseEntity.ok(postService.getPosts(userId));
         } catch (Exception e) {
             throw new GetPostFailException("Failed to get articles: " + e.getMessage());
         }

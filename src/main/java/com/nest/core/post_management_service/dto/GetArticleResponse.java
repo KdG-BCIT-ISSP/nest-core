@@ -23,8 +23,9 @@ public class GetArticleResponse {
     private Set<String> tagNames;
     private Set<GetCommentResponse> comment;
     private String coverImage;
+    private boolean isBookmarked;
 
-    public GetArticleResponse(Post post){
+    public GetArticleResponse(Post post, Long userId){
         this.id = post.getId();
         this.topicName = post.getTopic().getName();
         this.title = post.getTitle();
@@ -44,5 +45,7 @@ public class GetArticleResponse {
         } else {
             this.coverImage = null;
         }
+        this.isBookmarked = (userId != null && post.getBookmarkedMembers().stream()
+                .anyMatch(member -> member.getId().equals(userId)));
     }
 }
