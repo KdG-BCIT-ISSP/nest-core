@@ -58,11 +58,13 @@ public class Post {
 
     private String type;
 
+    @Builder.Default
     @Column(name="likes_count")
-    private Long likesCount;
+    private Long likesCount = 0L;
 
+    @Builder.Default
     @Column(name="view_count")
-    private Long viewCount;
+    private Long viewCount = 0L;
 
     @Column(name="share_count")
     private int shareCount;
