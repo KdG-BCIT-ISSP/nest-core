@@ -131,6 +131,13 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.GET,"/api/v1/content/**"
                         ).hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
+                        // Notification-Service
+                        .requestMatchers(
+                                HttpMethod.GET, "/api/v1/notification/subscribe/**"
+                        ).hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(
+                                HttpMethod.POST, "/api/v1/notification/send/**"
+                        ).hasAnyRole(MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         .anyRequest().authenticated()
                 ).exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint((request, response, authException) -> {
