@@ -70,6 +70,9 @@ public class SecurityConfig {
                                 // User-Management-Service
                                 "/api/v1/member/me"
                         ).hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(
+                                "/api/v1/member/all"
+                        ).hasAnyRole(MemberRole.SUPER_ADMIN.name())
                         // Post-Management-Service
                         .requestMatchers(
                                 HttpMethod.POST, "/api/v1/posts"
