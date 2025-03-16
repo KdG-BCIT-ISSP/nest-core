@@ -28,26 +28,14 @@ public class SearchService {
     private final SearchRepository searchRepository;
 
     public List<SearchResponse> searchPost(
-        String searchQuery,
-        Optional<String> topic,
-        Optional<String> tag,
+        Optional<String> searchQuery,
+        Optional<List<String>> topics,
+        Optional<List<String>> tags,
         Optional<String> orderBy,
         Optional<String> order
         ) throws BadRequestException, UnsupportedEncodingException {
 
-        if (!isValidRequest(orderBy, order)) {
-            throw new BadRequestException("Order by and order must be provided together or not at all");
-        }
-
-        Specification<Post> isPost = PostSpecification.isPost();
-        Specification<Post> hasTitle = PostSpecification.hasTitle(URLDecoder.decode(searchQuery, "UTF-8"));
-        Specification<Post> hasContent = PostSpecification.hasContent(URLDecoder.decode(searchQuery, "UTF-8"));
-
-        Specification<Post> spec = Specification.where(isPost).and(hasTitle.or(hasContent));
-
-        if (topic.isPresent()) spec = spec.and(PostSpecification.hasTopic(URLDecoder.decode(topic.get(), "UTF-8")));
-        if (tag.isPresent()) spec = spec.and(PostSpecification.hasTag(URLDecoder.decode(tag.get(), "UTF-8")));
-
+        Specification<Post> spec = buildSpecification("post", searchQuery, topics, tags, orderBy, order);
         Sort sort = PostSpecification.sortBy(orderBy.orElse("id"), order.orElse("ASC"));
 
         return searchRepository.findAll(spec, sort).stream()
@@ -56,26 +44,14 @@ public class SearchService {
     }
 
     public List<SearchResponse> searchArticle(
-        String searchQuery,
-        Optional<String> topic,
-        Optional<String> tag,
+        Optional<String> searchQuery,
+        Optional<List<String>> topics,
+        Optional<List<String>> tags,
         Optional<String> orderBy,
         Optional<String> order
         ) throws BadRequestException, UnsupportedEncodingException {
 
-        if (!isValidRequest(orderBy, order)) {
-            throw new BadRequestException("Order by and order must be provided together or not at all");
-        }
-
-        Specification<Post> isArticle = PostSpecification.isArticle();
-        Specification<Post> hasTitle = PostSpecification.hasTitle(URLDecoder.decode(searchQuery, "UTF-8"));
-        Specification<Post> hasContent = PostSpecification.hasContent(URLDecoder.decode(searchQuery, "UTF-8"));
-
-        Specification<Post> spec = Specification.where(isArticle).and(hasTitle.or(hasContent));
-
-        if (topic.isPresent()) spec = spec.and(PostSpecification.hasTopic(URLDecoder.decode(topic.get(), "UTF-8")));
-        if (tag.isPresent()) spec = spec.and(PostSpecification.hasTag(URLDecoder.decode(tag.get(), "UTF-8")));
-
+        Specification<Post> spec = buildSpecification("article", searchQuery, topics, tags, orderBy, order);
         Sort sort = PostSpecification.sortBy(orderBy.orElse("id"), order.orElse("ASC"));
 
         return searchRepository.findAll(spec, sort).stream()
@@ -83,10 +59,37 @@ public class SearchService {
                 .collect(Collectors.toList());
     }
 
-    private boolean isValidRequest(Optional<String> orderBy, Optional<String> order) {
-        if (orderBy.isPresent() && order.isPresent() || !orderBy.isPresent() && !order.isPresent()) {
-            return true;
+    private Specification<Post> buildSpecification(
+        String type,
+        Optional<String> searchQuery,
+        Optional<List<String>> topics,
+        Optional<List<String>> tags,
+        Optional<String> orderBy,
+        Optional<String> order
+    ) throws BadRequestException, UnsupportedEncodingException {
+
+        String query = searchQuery.orElse("");
+        Specification<Post> isType = type.equals("post") ? PostSpecification.isPost() : PostSpecification.isArticle();
+        Specification<Post> hasTitle = PostSpecification.hasTitle(URLDecoder.decode(query, "UTF-8"));
+        Specification<Post> hasContent = PostSpecification.hasContent(URLDecoder.decode(query, "UTF-8"));
+
+        Specification<Post> mainSpec = Specification.where(isType).and(hasTitle.or(hasContent));
+        Specification<Post> topicsSpec = null;
+        Specification<Post> tagsSpec = null;
+
+        if (topics.isPresent()) {
+            for(String topic : topics.get()) {
+                if (topicsSpec == null) topicsSpec = PostSpecification.hasTopic(URLDecoder.decode(topic, "UTF-8"));
+                else topicsSpec = topicsSpec.or(PostSpecification.hasTopic(URLDecoder.decode(topic, "UTF-8")));
+            }
         }
-        return false;
+
+        if (tags.isPresent()) {
+            for(String tag : tags.get()) {
+                if (tagsSpec == null) tagsSpec = PostSpecification.hasTag(URLDecoder.decode(tag, "UTF-8"));
+                else tagsSpec = tagsSpec.and(PostSpecification.hasTag(URLDecoder.decode(tag, "UTF-8")));
+            }
+        }
+        return mainSpec.and(topicsSpec).and(tagsSpec);
     }
 }

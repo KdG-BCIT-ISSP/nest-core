@@ -2,7 +2,6 @@ package com.nest.core.search_service.specification;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.model.PostTag;
