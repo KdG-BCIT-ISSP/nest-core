@@ -1,5 +1,6 @@
 package com.nest.core.search_service.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.nest.core.post_management_service.model.Post;
@@ -15,6 +16,7 @@ public class SearchResponse {
     private String creatorName;
     private String content;
     private String topic;
+    private LocalDateTime createdAt;
     private List<String> tags;
     private int shareCount;
     private Long likesCount;
@@ -32,6 +34,7 @@ public class SearchResponse {
         this.viewCount = post.getViewCount();
         this.tags = post.getPostTags().stream().map(postTag -> postTag.getTag().getName()).toList();
         this.topic = post.getTopic().getName();
+        this.createdAt = post.getCreatedAt();
         this.postImage = post.getPostImages().stream().findFirst().map(postImage -> postImage.getImageData()).orElse(null);
     }
 }
