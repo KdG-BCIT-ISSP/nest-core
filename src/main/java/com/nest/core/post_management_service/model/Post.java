@@ -10,6 +10,7 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -77,4 +78,8 @@ public class Post {
     @JdbcTypeCode(SqlTypes.JSON)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private JsonNode extraData;
+
+    @Builder.Default
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 }
