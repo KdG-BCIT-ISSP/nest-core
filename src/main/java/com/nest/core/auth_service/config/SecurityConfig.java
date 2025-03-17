@@ -141,6 +141,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.POST, "/api/v1/notification/send/**"
                         ).hasAnyRole(MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
+                        // Search-Service
+                        .requestMatchers(HttpMethod.GET, "/api/v1/search/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 ).exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint((request, response, authException) -> {
