@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class TagApiController {
     private final TagService tagService;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<?> getTags() {
         try {
             return ResponseEntity.ok(tagService.getAllTags());

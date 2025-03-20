@@ -145,9 +145,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/search/**"
                         ).permitAll()
                         // CRUD for topics/tags
-                        .requestMatchers(HttpMethod.GET, "/api/v1/topic/"
+                        .requestMatchers(HttpMethod.GET, "/api/v1/topic"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/tag/")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/tag")
                         .permitAll()
                         .anyRequest().authenticated()
                 ).exceptionHandling(exceptionHandling -> exceptionHandling
