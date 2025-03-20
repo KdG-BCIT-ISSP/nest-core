@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class TopicApiController {
     private final TopicService topicService;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<?> getTopics() {
         try {
             return ResponseEntity.ok(topicService.getAllTopics());
