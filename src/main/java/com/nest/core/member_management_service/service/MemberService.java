@@ -9,6 +9,7 @@ import com.nest.core.member_management_service.exception.InvalidPasswordExceptio
 import com.nest.core.member_management_service.exception.MemberNotFoundException;
 import com.nest.core.member_management_service.exception.ProfileUpdateException;
 import com.nest.core.member_management_service.model.Member;
+import com.nest.core.member_management_service.model.MemberRole;
 import com.nest.core.member_management_service.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -124,5 +126,24 @@ public class MemberService {
                 .stream()
                 .map(GetAllUserProfileResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    public void updateRole(Long userId, String userRole, Long memberId, UpdateRoleRequest updateRoleRequest) {
+        Member findMember = memberRepository.findById(userId)
+                .orElseThrow(() -> new MemberNotFoundException("Member not found for ID: " + userId));
+
+        if(!Objects.equals(userRole, MemberRole.SUPER_ADMIN.name())){
+            throw new RuntimeException("You are not authorized to change roles.");
+        }
+
+        if(Objects.equals(findMember.getId(), memberId)){
+            throw new RuntimeException("You can't change your own role.");
+        }
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException("Member not found for ID: " + memberId));
+
+        member.setRole(updateRoleRequest.getMemberRole());
+        memberRepository.save(member);
     }
 }

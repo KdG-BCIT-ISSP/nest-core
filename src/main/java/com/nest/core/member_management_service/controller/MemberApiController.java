@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -73,5 +74,21 @@ public class MemberApiController {
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
         }
+    }
+
+    @PutMapping("/role/{memberId}")
+    public ResponseEntity<?> updateRole(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long memberId, @RequestBody UpdateRoleRequest updateRoleRequest) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            String userRole = userDetails.getAuthorities().stream()
+                    .findFirst()
+                    .map(GrantedAuthority::getAuthority)
+                    .orElse("ROLE_USER");
+            memberService.updateRole(userId, userRole, memberId, updateRoleRequest);
+            return ResponseEntity.ok("Role updated");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+
     }
 }
