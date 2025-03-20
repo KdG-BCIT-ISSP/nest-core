@@ -5,6 +5,7 @@ import com.nest.core.post_management_service.model.Post;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +29,7 @@ public class GetPostResponse implements ContentResponse{
     private int shareCount;
     private boolean isBookmarked;
     private boolean isLiked;
+    private LocalDateTime createdAt;
 
     public GetPostResponse(Post post, Long userId){
         this.id = post.getId();
@@ -53,6 +55,7 @@ public class GetPostResponse implements ContentResponse{
         this.likesCount = post.getLikesCount();
         this.viewCount = post.getViewCount();
         this.shareCount = post.getShareCount();
+        this.createdAt = post.getCreatedAt();
     }
 
     public GetPostResponse(Post post){
@@ -74,5 +77,6 @@ public class GetPostResponse implements ContentResponse{
         this.likesCount = post.getLikesCount();
         this.viewCount = post.getViewCount();
         this.shareCount = post.getShareCount();
+        this.createdAt = post.getCreatedAt();
     }
 }
