@@ -132,7 +132,7 @@ public class MemberService {
         Member findMember = memberRepository.findById(userId)
                 .orElseThrow(() -> new MemberNotFoundException("Member not found for ID: " + userId));
 
-        if(!Objects.equals(userRole, MemberRole.SUPER_ADMIN.name())){
+        if(!Objects.equals(userRole.replaceAll("ROLE_", ""), MemberRole.SUPER_ADMIN.name())){
             throw new RuntimeException("You are not authorized to change roles.");
         }
 
