@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.nest.core.post_management_service.dto.GetArticleResponse;
+import com.nest.core.post_management_service.dto.GetPostResponse;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -27,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SearchService {
     private final SearchRepository searchRepository;
 
-    public List<SearchResponse> searchPost(
+    public List<GetPostResponse> searchPost(
         Optional<String> searchQuery,
         Optional<List<String>> topics,
         Optional<List<String>> tags,
@@ -39,11 +41,11 @@ public class SearchService {
         Sort sort = PostSpecification.sortBy(orderBy.orElse("id"), order.orElse("ASC"));
 
         return searchRepository.findAll(spec, sort).stream()
-                .map(SearchResponse::new)
+                .map(GetPostResponse::new)
                 .collect(Collectors.toList());
     }
 
-    public List<SearchResponse> searchArticle(
+    public List<GetArticleResponse> searchArticle(
         Optional<String> searchQuery,
         Optional<List<String>> topics,
         Optional<List<String>> tags,
@@ -55,7 +57,7 @@ public class SearchService {
         Sort sort = PostSpecification.sortBy(orderBy.orElse("id"), order.orElse("ASC"));
 
         return searchRepository.findAll(spec, sort).stream()
-                .map(SearchResponse::new)
+                .map(GetArticleResponse::new)
                 .collect(Collectors.toList());
     }
 
