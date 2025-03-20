@@ -32,7 +32,7 @@ public class PasswordApiController {
         }
     }
 
-    @PutMapping("/forgot")
+    @PostMapping("/forgot")
     public ResponseEntity<?> forgotPassword(@RequestBody SendResetCodeRequest codeRequest) {
         passwordService.sendEmail(codeRequest);
         return ResponseEntity.ok("Not implemented yet");
