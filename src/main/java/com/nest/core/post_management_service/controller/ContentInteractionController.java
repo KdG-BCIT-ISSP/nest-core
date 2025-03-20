@@ -1,6 +1,7 @@
 package com.nest.core.post_management_service.controller;
 
 import com.nest.core.auth_service.dto.CustomSecurityUserDetails;
+import com.nest.core.post_management_service.exception.GetArticleFailException;
 import com.nest.core.post_management_service.service.ContentInteractionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,12 @@ public class ContentInteractionController {
 
     @GetMapping("/{contentId}/likes")
     public ResponseEntity<Long> getLikes(@PathVariable Long contentId) {
-        return ResponseEntity.ok(interactionService.getLikes(contentId));
+        try {
+            Long likes = interactionService.getLikes(contentId);
+            return ResponseEntity.ok(likes != null ? likes : 0L);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(0L);
+        }
     }
 
     @GetMapping("/{contentId}/isLiked")
@@ -25,11 +31,14 @@ public class ContentInteractionController {
             @PathVariable Long contentId,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        if (userDetails instanceof CustomSecurityUserDetails customUser) {
-            Long userId = customUser.getUserId();
-            return ResponseEntity.ok(interactionService.isLiked(contentId, userId));
-        } else {
+        try {
+            if (userDetails instanceof CustomSecurityUserDetails customUser) {
+                Long userId = customUser.getUserId();
+                return ResponseEntity.ok(interactionService.isLiked(contentId, userId));
+            }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
         }
     }
 
@@ -77,6 +86,15 @@ public class ContentInteractionController {
             return ResponseEntity.ok(interactionService.getAllBookmarkedPost(userId));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+        }
+    }
+
+    @GetMapping("/id/{contentId}")
+    public ResponseEntity<?> getArticle(@PathVariable Long contentId) {
+        try {
+            return ResponseEntity.ok(interactionService.getContent(contentId));
+        } catch (Exception e) {
+            throw new GetArticleFailException("Failed to get article: " + e.getMessage());
         }
     }
 }

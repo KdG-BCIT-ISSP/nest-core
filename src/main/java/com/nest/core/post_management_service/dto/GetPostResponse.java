@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
-public class GetPostResponse {
+public class GetPostResponse implements ContentResponse{
     private Long id;
     private String title;
     private String content;
@@ -49,6 +49,27 @@ public class GetPostResponse {
 
         this.isLiked = (userId != null && post.getPostLikes().stream()
                 .anyMatch(postLike -> postLike.getMember().getId().equals(userId)));
+
+        this.likesCount = post.getLikesCount();
+        this.viewCount = post.getViewCount();
+        this.shareCount = post.getShareCount();
+    }
+
+    public GetPostResponse(Post post){
+        this.id = post.getId();
+        this.title = post.getTitle();
+        this.content = post.getContent();
+        this.type = post.getType();
+        this.memberId = post.getMember().getId();
+        this.memberUsername = post.getMember().getUsername();
+        this.memberAvatar = post.getMember().getAvatar().get("image").asText();
+        this.tagNames = post.getPostTags().stream()
+                .map(postTag -> postTag.getTag().getName())
+                .collect(Collectors.toSet());
+        this.comment = post.getComments();
+        this.imageBase64 = post.getPostImages().stream()
+                .map(image -> image.getImageType() + "," + Base64.getEncoder().encodeToString(image.getImageData()))
+                .collect(Collectors.toList());
 
         this.likesCount = post.getLikesCount();
         this.viewCount = post.getViewCount();

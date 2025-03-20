@@ -134,9 +134,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/report/article/**"
                         ).permitAll()
                         // Content-Management-Service (Interaction with content)
-                        .requestMatchers(
-                                HttpMethod.GET,"/api/v1/content/**"
-                        ).hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/api/v1/content/*/likes").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/content/*/isLiked").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/content/*/view").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/content/*/views").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/content/id/*").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/content/*/toggleLike")
+                        .hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/api/v1/content/article/bookmark")
+                        .hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/api/v1/content/post/bookmark")
+                        .hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         // Notification-Service
                         .requestMatchers(
                                 HttpMethod.GET, "/api/v1/notification/subscribe/**"
