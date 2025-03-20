@@ -75,7 +75,7 @@ public class SecurityConfig {
                         ).hasAnyRole(MemberRole.SUPER_ADMIN.name())
                         .requestMatchers(
                                 "/api/v1/member/all"
-                        ).hasAnyRole(MemberRole.SUPER_ADMIN.name())
+                        ).hasAnyRole(MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         // Post-Management-Service
                         .requestMatchers(
                                 HttpMethod.POST, "/api/v1/posts"
