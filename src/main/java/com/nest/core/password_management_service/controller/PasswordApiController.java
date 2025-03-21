@@ -42,9 +42,9 @@ public class PasswordApiController {
         return ResponseEntity.ok("Reset token successfully sent to " + codeRequest.getEmail());
     }
 
-    @PutMapping("/reset/{token}")
-    public ResponseEntity<?> resetPassword(@PathVariable String token, @RequestBody ResetPasswordRequest resetRequest) {
-        passwordService.resetPassword(resetRequest, token);
+    @PutMapping("/reset/{resetUID}")
+    public ResponseEntity<?> resetPassword(@PathVariable String resetUID, @RequestBody ResetPasswordRequest resetRequest) {
+        passwordService.resetPassword(resetRequest, resetUID);
         return ResponseEntity.ok("Password successfully reset");
     }
 }

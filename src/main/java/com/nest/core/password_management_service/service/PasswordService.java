@@ -57,8 +57,9 @@ public class PasswordService {
         return jwtUtil.createResetToken(codeRequest.getEmail(), 1000 * 60 * 10L);
     }
 
-    public void resetPassword(ResetPasswordRequest resetRequest, String token) {
-        if (jwtUtil.isExpired(token)) {
+    public void resetPassword(ResetPasswordRequest resetRequest, String resetUID) {
+        String token = jwtUtil.getResetToken(resetUID);
+        if (token == null || jwtUtil.isExpired(token)) {
             throw new InvalidResetCodeException("Code is either expired or invalid");
         }
         String email = jwtUtil.getEmail(token);
@@ -74,7 +75,6 @@ public class PasswordService {
 
         try {
             memberRepository.save(member);
-            jwtUtil.deleteTokens(token);
 
         } catch (Exception e) {
             log.warn("Error updating password: {}", e.getMessage());

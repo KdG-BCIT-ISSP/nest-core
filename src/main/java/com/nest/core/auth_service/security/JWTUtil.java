@@ -10,6 +10,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -85,18 +86,19 @@ public class JWTUtil {
                 .signWith(secretKey)
                 .compact();
 
+        String resetUID = UUID.randomUUID().toString();
+
         redisTemplate.opsForValue().set(
-                email,
+                resetUID,
                 resetToken,
                 expiredMs,
                 TimeUnit.MILLISECONDS
         );
 
-        return resetToken;
+        return resetUID;
     }
 
-    public void deleteTokens(String email) {
-        // TODO: Figure out why this thing won't get deleted
-        redisTemplate.delete(email);
+    public String getResetToken(String resetUID) {
+        return (String) redisTemplate.opsForValue().getAndDelete(resetUID);
     }
 }
