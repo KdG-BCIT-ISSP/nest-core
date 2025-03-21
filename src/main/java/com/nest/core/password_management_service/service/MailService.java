@@ -23,7 +23,7 @@ public class MailService {
     // Frontend can maybe adjust what the email could look like to match with the rest of the site
     private static final String emailStart = "NEST - Password Reset Request\n\nHello, someone has requested a password reset for your account.\n\n";
     private static final String emailCode = "Click on this link to reset your password: ";
-    private static final String emailEnd = "\n\nThis code will expire in 5 minuntes\n\nIf you did not request this, please ignore this email.\n\nNEST Team";
+    private static final String emailEnd = "\n\nThis code will expire in 10 minuntes\n\nIf you did not request this, please ignore this email.\n\nNEST Team";
 
     public void sendResetToken(String email, String domain, String resetToken) {
 
