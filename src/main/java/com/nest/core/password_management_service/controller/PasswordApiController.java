@@ -9,8 +9,10 @@ import com.nest.core.auth_service.dto.CustomSecurityUserDetails;
 import com.nest.core.password_management_service.dto.ChangePasswordRequest;
 import com.nest.core.password_management_service.dto.ResetPasswordRequest;
 import com.nest.core.password_management_service.dto.SendResetCodeRequest;
+import com.nest.core.password_management_service.service.MailService;
 import com.nest.core.password_management_service.service.PasswordService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PasswordApiController {
     private final PasswordService passwordService;
+    private final MailService mailService;
 
     @PutMapping("/change")
     public ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails userDetails, @RequestBody ChangePasswordRequest changeRequest) {
@@ -33,14 +36,15 @@ public class PasswordApiController {
     }
 
     @PostMapping("/forgot")
-    public ResponseEntity<?> forgotPassword(@RequestBody SendResetCodeRequest codeRequest) {
-        passwordService.sendEmail(codeRequest);
-        return ResponseEntity.ok("Not implemented yet");
+    public ResponseEntity<?> forgotPassword(@RequestBody SendResetCodeRequest codeRequest, HttpServletRequest request) {
+        String resetToken = passwordService.generateResetToken(codeRequest);
+        mailService.sendResetToken(codeRequest.getEmail(), request.getHeader("Origin"), resetToken);
+        return ResponseEntity.ok("Reset token successfully sent to " + codeRequest.getEmail());
     }
 
-    @PutMapping("/reset")
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetRequest) {
-        passwordService.resetPassword(resetRequest);
-        return ResponseEntity.ok("Not implemented yet");
+    @PutMapping("/reset/{token}")
+    public ResponseEntity<?> resetPassword(@PathVariable String token, @RequestBody ResetPasswordRequest resetRequest) {
+        passwordService.resetPassword(resetRequest, token);
+        return ResponseEntity.ok("Password successfully reset");
     }
 }

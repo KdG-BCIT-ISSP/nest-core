@@ -73,4 +73,30 @@ public class JWTUtil {
 
         return refreshToken;
     }
+
+    public String createResetToken(String email, Long expiredMs) {
+        Date now = new Date(System.currentTimeMillis());
+        Date expiration = new Date(System.currentTimeMillis() + expiredMs);
+
+        String resetToken = Jwts.builder()
+                .claim("email", email)
+                .issuedAt(now)
+                .expiration(expiration)
+                .signWith(secretKey)
+                .compact();
+
+        redisTemplate.opsForValue().set(
+                email,
+                resetToken,
+                expiredMs,
+                TimeUnit.MILLISECONDS
+        );
+
+        return resetToken;
+    }
+
+    public void deleteTokens(String email) {
+        // TODO: Figure out why this thing won't get deleted
+        redisTemplate.delete(email);
+    }
 }
