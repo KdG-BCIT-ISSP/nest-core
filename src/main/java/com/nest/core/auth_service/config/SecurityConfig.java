@@ -160,6 +160,11 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/tag")
                         .permitAll()
+                        // Password reset service
+                        .requestMatchers("/api/v1/password/reset/*")
+                        .permitAll()
+                        .requestMatchers("/api/v1/password/forgot")
+                        .permitAll()
                         .anyRequest().authenticated()
                 ).exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint((request, response, authException) -> {
