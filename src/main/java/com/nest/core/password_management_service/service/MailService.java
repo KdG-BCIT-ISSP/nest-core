@@ -25,13 +25,13 @@ public class MailService {
     private static final String emailCode = "Click on this link to reset your password: ";
     private static final String emailEnd = "\n\nThis code will expire in 10 minuntes\n\nIf you did not request this, please ignore this email.\n\nNEST Team";
 
-    public void sendResetToken(String email, String domain, String resetToken) {
+    public void sendResetUID(String email, String domain, String resetUID) {
 
         SimpleMailMessage mail = new SimpleMailMessage();
         mail.setFrom("noreply@nest.com");
         mail.setTo(email);
         mail.setSubject("NEST - Password Reset Request");
-        mail.setText(emailStart + emailCode + domain + "/" + resetToken + emailEnd);
+        mail.setText(emailStart + emailCode + domain + "/" + resetUID + emailEnd);
         emailSender.send(mail);
 
         log.info("Reset token sent to {}", email);
