@@ -11,12 +11,14 @@ public class GetAllUserProfileResponse {
     private final MemberRole role;
     private final String email;
     private final String username;
+    private final String region;
 
     public GetAllUserProfileResponse(Member member) {
         this.id = member.getId();
         this.role = member.getRole();
         this.email = member.getEmail();
         this.username = member.getUsername();
+        this.region = member.getRegion();
     }
 
 }
