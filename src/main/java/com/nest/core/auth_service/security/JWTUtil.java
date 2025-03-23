@@ -10,6 +10,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -72,5 +73,32 @@ public class JWTUtil {
         );
 
         return refreshToken;
+    }
+
+    public String createResetToken(String email, Long expiredMs) {
+        Date now = new Date(System.currentTimeMillis());
+        Date expiration = new Date(System.currentTimeMillis() + expiredMs);
+
+        String resetToken = Jwts.builder()
+                .claim("email", email)
+                .issuedAt(now)
+                .expiration(expiration)
+                .signWith(secretKey)
+                .compact();
+
+        String resetUID = UUID.randomUUID().toString();
+
+        redisTemplate.opsForValue().set(
+                resetUID,
+                resetToken,
+                expiredMs,
+                TimeUnit.MILLISECONDS
+        );
+
+        return resetUID;
+    }
+
+    public String getResetToken(String resetUID) {
+        return (String) redisTemplate.opsForValue().getAndDelete(resetUID);
     }
 }
