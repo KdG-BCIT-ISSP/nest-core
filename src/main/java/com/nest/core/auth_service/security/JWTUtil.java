@@ -15,34 +15,39 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class JWTUtil {
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate; // Specify generic types
     private SecretKey secretKey;
 
-    public JWTUtil(@Value("${spring.jwt.secret}") String secret, @Qualifier("redisTemplate") RedisTemplate redisTemplate){
-        this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+    public JWTUtil(@Value("${spring.jwt.secret}") String secret,
+                   @Qualifier("redisTemplate") RedisTemplate<String, Object> redisTemplate) {
+        this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
+                Jwts.SIG.HS256.key().build().getAlgorithm());
         this.redisTemplate = redisTemplate;
     }
 
     public String getUserId(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("uid", String.class);
+        return Jwts.parser().verifyWith(secretKey).build()
+                .parseSignedClaims(token).getPayload().get("uid", String.class);
     }
 
     public String getEmail(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("email", String.class);
+        return Jwts.parser().verifyWith(secretKey).build()
+                .parseSignedClaims(token).getPayload().get("email", String.class);
     }
 
     public String getRole(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
+        return Jwts.parser().verifyWith(secretKey).build()
+                .parseSignedClaims(token).getPayload().get("role", String.class);
     }
 
     public Boolean isExpired(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+        return Jwts.parser().verifyWith(secretKey).build()
+                .parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
     public String createJwt(String uid, String email, String role, Long expiredMs) {
-
         return Jwts.builder()
-                .claim("uid" , uid)
+                .claim("uid", uid)
                 .claim("email", email)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -51,8 +56,7 @@ public class JWTUtil {
                 .compact();
     }
 
-    public String createRefreshToken(String uid, String email, String role, Long expiredMs){
-
+    public String createRefreshToken(String uid, String email, String role, Long expiredMs) {
         Date now = new Date(System.currentTimeMillis());
         Date expiration = new Date(System.currentTimeMillis() + expiredMs);
 
