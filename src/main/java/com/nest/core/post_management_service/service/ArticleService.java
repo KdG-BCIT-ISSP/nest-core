@@ -135,40 +135,6 @@ public class ArticleService {
         postRepository.delete(post);
     }
 
-    public void addBookmark(Long postId, Long userId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new AddBookmarkFailException("Article not found"));
-
-        Member member = memberRepository.findById(userId)
-                .orElseThrow(() -> new AddBookmarkFailException("Member not found"));
-
-        if (post.getBookmarkedMembers().contains(member)) {
-            throw new AddBookmarkFailException("Article already bookmarked");
-        }
-
-        member.getBookmarkedPosts().add(post);
-        post.getBookmarkedMembers().add(member);
-        memberRepository.save(member);
-        postRepository.save(post);
-    }
-
-    public void removeBookmark(Long postId, Long userId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new AddBookmarkFailException("Article not found"));
-
-        Member member = memberRepository.findById(userId)
-                .orElseThrow(() -> new AddBookmarkFailException("Member not found"));
-
-        if (!post.getBookmarkedMembers().contains(member)) {
-            throw new RemoveBookmarkFailException("Article was never bookmarked");
-        }
-
-        member.getBookmarkedPosts().remove(post);
-        post.getBookmarkedMembers().remove(member);
-        memberRepository.save(member);
-        postRepository.save(post);
-    }
-
     private Set<Tag> createOrFindTags(Set<String> tagNames) {
         if (tagNames == null || tagNames.isEmpty()) {
             return Collections.emptySet();

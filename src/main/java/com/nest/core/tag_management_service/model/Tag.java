@@ -27,7 +27,8 @@ public class Tag {
     @Column(unique = true, nullable = false)
     private String name;
 
+    @Builder.Default
     @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<PostTag> postTags = new HashSet<>();  // Updated mapping
+    private Set<PostTag> postTags = new HashSet<>();
 
 }

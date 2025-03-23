@@ -82,33 +82,4 @@ public class PostApiController {
         }
     }
 
-    @PostMapping("/bookmark/add/{postId}")
-    public ResponseEntity<?> bookmarkPost(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long postId) {
-        if (userDetails instanceof CustomSecurityUserDetails customUser) {
-            Long userId = customUser.getUserId();
-            try {
-                postService.addBookmark(postId, userId);
-                return ResponseEntity.ok("Post bookmarked");
-            } catch (Exception e) {
-                throw new AddBookmarkFailException("Failed to save bookmark: " + e.getMessage());
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
-        }
-    }
-
-    @DeleteMapping("/bookmark/remove/{postId}")
-    public ResponseEntity<?> removeBookmark(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long postId) {
-        if (userDetails instanceof CustomSecurityUserDetails customUser) {
-            Long userId = customUser.getUserId();
-            try {
-                postService.removeBookmark(postId, userId);
-                return ResponseEntity.ok("Bookmarked post removed");
-            } catch (Exception e) {
-                throw new AddBookmarkFailException("Failed to remove bookmark: " + e.getMessage());
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
-        }
-    }
 }
