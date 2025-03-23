@@ -89,6 +89,19 @@ public class ContentInteractionController {
         }
     }
 
+    @PutMapping("/{contentId}/toggleBookmark")
+    public ResponseEntity<Boolean> toggleBookmark (
+            @PathVariable Long contentId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            return ResponseEntity.ok(interactionService.toggleBookmark(contentId, userId));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+        }
+    }
+
     @GetMapping("/id/{contentId}")
     public ResponseEntity<?> getArticle(@PathVariable Long contentId) {
         try {

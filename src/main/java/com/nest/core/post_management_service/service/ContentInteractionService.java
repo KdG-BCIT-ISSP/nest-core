@@ -5,6 +5,8 @@ import com.nest.core.member_management_service.repository.MemberRepository;
 import com.nest.core.post_management_service.dto.ContentResponse;
 import com.nest.core.post_management_service.dto.GetArticleResponse;
 import com.nest.core.post_management_service.dto.GetPostResponse;
+import com.nest.core.post_management_service.exception.AddBookmarkFailException;
+import com.nest.core.post_management_service.exception.RemoveBookmarkFailException;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.model.PostLike;
 import com.nest.core.post_management_service.repository.BookmarkRepository;
@@ -212,6 +214,39 @@ public class ContentInteractionService {
                 .member(member)
                 .build();
         postLikeRepository.save(postLike);
+    }
+
+    @Transactional
+    public boolean toggleBookmark(Long postId, Long userId) {
+        if (postId == null || userId == null) {
+            throw new IllegalArgumentException("postId and userId must not be null");
+        }
+
+        try {
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new AddBookmarkFailException("Article not found"));
+
+            Member member = memberRepository.findById(userId)
+                    .orElseThrow(() -> new AddBookmarkFailException("Member not found"));
+
+            boolean alreadyBookmarked = post.getBookmarkedMembers().contains(member);
+
+            if (alreadyBookmarked) {
+                member.getBookmarkedPosts().remove(post);
+                post.getBookmarkedMembers().remove(member);
+            } else {
+                member.getBookmarkedPosts().add(post);
+                post.getBookmarkedMembers().add(member);
+            }
+
+            memberRepository.save(member);
+            postRepository.save(post);
+
+            return !alreadyBookmarked;
+        } catch (Exception e) {
+            log.error("Error toggling bookmark for postId: {}, userId: {}", postId, userId, e);
+            throw e;
+        }
     }
 
     public List<GetArticleResponse> getAllBookmarkedArticle(Long userId) {
