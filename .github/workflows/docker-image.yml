@@ -54,6 +54,5 @@ jobs:
                               --build-arg REDIS_HOST=${{ secrets.REDIS_HOST }} \
                               --build-arg REDIS_PORT=${{ secrets.REDIS_PORT }} \
                               -t devjasper0906/nest-core:${{ env.COMMIT_HASH }} \
-                              --platform linux/amd64 . 
-          
+                              --platform linux/amd64 .
           docker push devjasper0906/nest-core:${{ env.COMMIT_HASH }}
