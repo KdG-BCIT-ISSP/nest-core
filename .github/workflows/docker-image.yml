@@ -42,8 +42,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker buildx build \
-            --build-arg POSTGRES_URL=${{ secrets.POSTGRES_URL }} \ 
+          docker buildx build --build-arg POSTGRES_URL=${{ secrets.POSTGRES_URL }} \ 
             --build-arg POSTGRES_USERNAME=${{ secrets.POSTGRES_USERNAME }} \ 
             --build-arg POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \ 
             --build-arg POSTGRES_DB_PLATFORM=${{ secrets.POSTGRES_DB_PLATFORM }} \ 
