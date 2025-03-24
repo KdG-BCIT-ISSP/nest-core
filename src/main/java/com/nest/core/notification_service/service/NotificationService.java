@@ -52,6 +52,7 @@ public class NotificationService {
 
     private void sendNotification(Notification notification) {
         Long memberId = notification.getMember().getId();
+
         SseEmitter emitter = emitters.get(memberId);
 
         if (emitter != null) {
