@@ -42,7 +42,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker buildx build --no-cache \
+          docker build --no-cache \
                               --build-arg POSTGRES_URL=${{ secrets.POSTGRES_URL }} \
                               --build-arg POSTGRES_USERNAME=${{ secrets.POSTGRES_USERNAME }} \
                               --build-arg POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
