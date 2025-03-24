@@ -46,6 +46,10 @@ jobs:
                               --build-arg POSTGRES_USERNAME=${{ secrets.POSTGRES_USERNAME }} \
                               --build-arg POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
                               --build-arg POSTGRES_DB_PLATFORM=${{ secrets.POSTGRES_DB_PLATFORM }} \
+                              --build-arg MAIL_HOST=${{ secrets.MAIL_HOST }} \
+                              --build-arg MAIL_PORT=${{ secrets.MAIL_PORT }} \
+                              --build-arg MAIL_USERNAME=${{ secrets.MAIL_USERNAME }} \
+                              --build-arg MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }} \
                               --build-arg JWT_SECRET=${{ secrets.JWT_SECRET }} \
                               --build-arg REDIS_HOST=${{ secrets.REDIS_HOST }} \
                               --build-arg REDIS_PORT=${{ secrets.REDIS_PORT }} \
