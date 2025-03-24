@@ -45,7 +45,6 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          echo "Running Docker build with commit hash: ${{ env.COMMIT_HASH }}"
           docker buildx build \
             --no-cache \
             --build-arg POSTGRES_URL="${{ secrets.POSTGRES_URL }}" \
@@ -61,5 +60,6 @@ jobs:
             --build-arg MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}" \
             --platform linux/amd64 \
             -t devjasper0906/nest-core:${{ env.COMMIT_HASH }} \
+            --load \
             .
           docker push devjasper0906/nest-core:${{ env.COMMIT_HASH }}
