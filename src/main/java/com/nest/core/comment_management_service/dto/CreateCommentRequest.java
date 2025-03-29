@@ -14,6 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class CreateCommentRequest {
     private Long postId;
+    private Long parentId;
     private String content;
     private Date createAt;
 

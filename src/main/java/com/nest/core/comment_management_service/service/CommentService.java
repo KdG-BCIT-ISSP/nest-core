@@ -32,6 +32,22 @@ public class CommentService {
 
         Comment comment = createCommentRequest.toEntity(post, member);
 
+        // Handle reply logic
+        if (createCommentRequest.getParentId() != null) {
+            Comment parentComment = commentRepository.findById(createCommentRequest.getParentId())
+                    .orElseThrow(() -> new CreateCommentFailException("Parent comment not found"));
+
+            // Enforce depth limit of 2
+            if (parentComment.getParent() != null) {
+                throw new CreateCommentFailException("Cannot reply to a reply. Maximum depth of 2 is allowed.");
+            }
+
+            // Link the reply to its parent
+            comment.setParent(parentComment);
+            parentComment.getReplies().add(comment);
+            comment.setPost(parentComment.getPost()); // Ensure reply is tied to the same post
+        }
+
         commentRepository.save(comment);
     }
 
@@ -58,7 +74,9 @@ public class CommentService {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new GetCommentFailException("Comment not found"));
 
-        return new GetCommentResponse(comment.getId() , comment.getPost().getId(), comment.getMember().getId(), comment.getContent(), comment.getCreateAt(), comment.isEdit());
+        Long parentId = (comment.getParent() != null) ? comment.getParent().getId() : null;
+
+        return new GetCommentResponse(comment.getId() , comment.getPost().getId(), comment.getMember().getId(), comment.getContent(), comment.getCreateAt(), comment.isEdit(), parentId);
     }
 
     public void deleteComment(Long userId, Long commentId, String userRole) {

@@ -17,6 +17,7 @@ public class GetCommentResponse {
     private String content;
     private Date createAt;
     private boolean isEdit;
+    private Long parentId;
 
     /**
      * For GetArticleResponse
@@ -30,5 +31,6 @@ public class GetCommentResponse {
         this.content = comment.getContent();
         this.createAt = comment.getCreateAt();
         this.isEdit = comment.isEdit();
+        this.parentId = (comment.getParent() != null) ? comment.getParent().getId() : null;
     }
 }

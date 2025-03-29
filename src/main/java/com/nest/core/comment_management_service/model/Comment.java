@@ -6,7 +6,9 @@ import com.nest.core.post_management_service.model.Post;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,7 +16,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="comment")
+@Table(name = "comment")
 public class Comment {
 
     @Id
@@ -44,4 +46,11 @@ public class Comment {
     @Column(name = "likes_count", nullable = false)
     private Long likesCount = 0L;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id", referencedColumnName = "id")
+    private Comment parent;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Comment> replies = new ArrayList<>();
 }
