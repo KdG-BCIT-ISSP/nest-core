@@ -89,6 +89,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.GET, "/api/v1/posts"
                         ).permitAll()
+                        .requestMatchers(
+                                HttpMethod.GET, "/api/v1/posts/*"
+                        ).permitAll()
                         // Article-Management-Service
                         .requestMatchers(
                                 HttpMethod.DELETE,"/api/v1/article/**"
@@ -101,6 +104,9 @@ public class SecurityConfig {
                         ).hasAnyRole(MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         .requestMatchers(
                                 HttpMethod.GET,"/api/v1/article"
+                        ).permitAll()
+                        .requestMatchers(
+                                HttpMethod.GET,"/api/v1/article/*"
                         ).permitAll()
                         // Comment-Management-Service
                         .requestMatchers(

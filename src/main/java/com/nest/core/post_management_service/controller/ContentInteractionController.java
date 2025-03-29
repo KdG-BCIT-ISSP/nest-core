@@ -110,4 +110,5 @@ public class ContentInteractionController {
             throw new GetArticleFailException("Failed to get article: " + e.getMessage());
         }
     }
+
 }

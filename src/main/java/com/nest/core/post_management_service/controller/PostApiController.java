@@ -82,4 +82,10 @@ public class PostApiController {
         }
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getPostByUserId(@PathVariable Long userId){
+
+        return ResponseEntity.ok(postService.getPostsByUserId(userId));
+    }
+
 }

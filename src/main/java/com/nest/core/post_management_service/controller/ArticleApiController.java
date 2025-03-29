@@ -94,4 +94,10 @@ public class ArticleApiController {
         }
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getArticleByUserId(@PathVariable Long userId){
+
+        return ResponseEntity.ok(articleService.getArticlesByUserId(userId));
+    }
+
 }

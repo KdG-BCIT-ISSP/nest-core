@@ -200,4 +200,8 @@ public class PostService {
                 ).collect(Collectors.toSet());
     }
 
+    public List<GetPostResponse> getPostsByUserId(Long userId){
+        return postRepository.findAllPostsByUserId(userId).stream().map(GetPostResponse::new).collect(Collectors.toList());
+    }
+
 }
