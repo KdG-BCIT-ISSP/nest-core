@@ -1,6 +1,8 @@
 package com.nest.core.search_service.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nest.core.search_service.exception.SearchFailException;
@@ -26,10 +28,11 @@ public class SearchApiController {
         @RequestParam("topic") Optional<List<String>> topics,
         @RequestParam("tag") Optional<List<String>> tags,
         @RequestParam("order_by") Optional<String> orderBy,
-        @RequestParam("order") Optional<String> order
+        @RequestParam("order") Optional<String> order,
+        @PageableDefault(page = 0, size = 10) Pageable pageable
         ) {
         try {
-            return ResponseEntity.ok(searchService.searchPost(searchQuery, topics, tags, orderBy, order));
+            return ResponseEntity.ok(searchService.searchPost(searchQuery, topics, tags, orderBy, order, pageable));
 
         } catch(Exception e) {
             throw new SearchFailException("Failed to search: " + e.getMessage());
@@ -43,10 +46,11 @@ public class SearchApiController {
         @RequestParam("topic") Optional<List<String>> topics,
         @RequestParam("tag") Optional<List<String>> tags,
         @RequestParam("order_by") Optional<String> orderBy,
-        @RequestParam("order") Optional<String> order
+        @RequestParam("order") Optional<String> order,
+        @PageableDefault(page = 0, size = 10) Pageable pageable
         ) {
         try {
-            return ResponseEntity.ok(searchService.searchArticle(searchQuery, topics, tags, orderBy, order));
+            return ResponseEntity.ok(searchService.searchArticle(searchQuery, topics, tags, orderBy, order, pageable));
 
         } catch(Exception e) {
             throw new SearchFailException("Failed to search: " + e.getMessage());

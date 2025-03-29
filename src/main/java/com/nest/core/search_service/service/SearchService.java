@@ -4,17 +4,16 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.nest.core.post_management_service.dto.GetArticleResponse;
 import com.nest.core.post_management_service.dto.GetPostResponse;
 import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.data.domain.Sort;
 
 import com.nest.core.post_management_service.model.Post;
-import com.nest.core.search_service.dto.SearchResponse;
 import com.nest.core.search_service.repository.SearchRepository;
 import com.nest.core.search_service.specification.PostSpecification;
 
@@ -29,47 +28,44 @@ import lombok.extern.slf4j.Slf4j;
 public class SearchService {
     private final SearchRepository searchRepository;
 
-    public List<GetPostResponse> searchPost(
-        Optional<String> searchQuery,
-        Optional<List<String>> topics,
-        Optional<List<String>> tags,
-        Optional<String> orderBy,
-        Optional<String> order
-        ) throws BadRequestException, UnsupportedEncodingException {
-
+    public Page<GetPostResponse> searchPost(
+            Optional<String> searchQuery,
+            Optional<List<String>> topics,
+            Optional<List<String>> tags,
+            Optional<String> orderBy,
+            Optional<String> order,
+            Pageable pageable
+    ) throws BadRequestException, UnsupportedEncodingException {
         Specification<Post> spec = buildSpecification("post", searchQuery, topics, tags, orderBy, order);
-        Sort sort = PostSpecification.sortBy(orderBy.orElse("id"), order.orElse("ASC"));
 
-        return searchRepository.findAll(spec, sort).stream()
-                .map(GetPostResponse::new)
-                .collect(Collectors.toList());
+        Page<Post> postPage = searchRepository.findAll(spec, pageable);
+
+        return postPage.map(GetPostResponse::new);
     }
 
-    public List<GetArticleResponse> searchArticle(
-        Optional<String> searchQuery,
-        Optional<List<String>> topics,
-        Optional<List<String>> tags,
-        Optional<String> orderBy,
-        Optional<String> order
-        ) throws BadRequestException, UnsupportedEncodingException {
-
+    public Page<GetArticleResponse> searchArticle(
+            Optional<String> searchQuery,
+            Optional<List<String>> topics,
+            Optional<List<String>> tags,
+            Optional<String> orderBy,
+            Optional<String> order,
+            Pageable pageable
+    ) throws BadRequestException, UnsupportedEncodingException {
         Specification<Post> spec = buildSpecification("article", searchQuery, topics, tags, orderBy, order);
-        Sort sort = PostSpecification.sortBy(orderBy.orElse("id"), order.orElse("ASC"));
 
-        return searchRepository.findAll(spec, sort).stream()
-                .map(GetArticleResponse::new)
-                .collect(Collectors.toList());
+        Page<Post> articlePage = searchRepository.findAll(spec, pageable);
+
+        return articlePage.map(GetArticleResponse::new);
     }
 
     private Specification<Post> buildSpecification(
-        String type,
-        Optional<String> searchQuery,
-        Optional<List<String>> topics,
-        Optional<List<String>> tags,
-        Optional<String> orderBy,
-        Optional<String> order
+            String type,
+            Optional<String> searchQuery,
+            Optional<List<String>> topics,
+            Optional<List<String>> tags,
+            Optional<String> orderBy,
+            Optional<String> order
     ) throws BadRequestException, UnsupportedEncodingException {
-
         String query = searchQuery.orElse("");
         Specification<Post> isType = type.equals("post") ? PostSpecification.isPost() : PostSpecification.isArticle();
         Specification<Post> hasTitle = PostSpecification.hasTitle(URLDecoder.decode(query, "UTF-8"));
