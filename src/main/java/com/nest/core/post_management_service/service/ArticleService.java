@@ -160,4 +160,8 @@ public class ArticleService {
 
         return imageNode;
     }
+
+    public List<GetArticleResponse> getArticlesByUserId(Long userId){
+        return postRepository.findAllArticlesByUserId(userId).stream().map(GetArticleResponse::new).collect(Collectors.toList());
+    }
 }
