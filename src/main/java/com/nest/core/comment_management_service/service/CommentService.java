@@ -14,7 +14,12 @@ import com.nest.core.post_management_service.exception.DeleteArticleFailExceptio
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -76,7 +81,16 @@ public class CommentService {
 
         Long parentId = (comment.getParent() != null) ? comment.getParent().getId() : null;
 
-        return new GetCommentResponse(comment.getId() , comment.getPost().getId(), comment.getMember().getId(), comment.getContent(), comment.getCreateAt(), comment.isEdit(), parentId);
+        return new GetCommentResponse(
+                comment.getId(),
+                comment.getPost().getId(),
+                comment.getMember().getId(),
+                comment.getMember().getAvatar(),
+                comment.getMember().getUsername(),
+                comment.getContent(),
+                comment.getCreateAt(),
+                comment.isEdit(),
+                parentId);
     }
 
     public void deleteComment(Long userId, Long commentId, String userRole) {
@@ -92,5 +106,12 @@ public class CommentService {
         }
 
         commentRepository.delete(comment);
+    }
+
+    public Page<GetCommentResponse> getComment(Long userId, Pageable pageable) {
+        List<Comment> comments = commentRepository.getCommentsByMemberId(userId);
+
+        Page<Comment> commentPage = new PageImpl<>(comments, pageable, comments.size());
+        return commentPage.map(GetCommentResponse::new);
     }
 }

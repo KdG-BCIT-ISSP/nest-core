@@ -121,6 +121,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.GET,"/api/v1/comment"
                         ).hasAnyRole(MemberRole.USER.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(
+                                HttpMethod.GET,"/api/v1/comment/*"
+                        ).hasAnyRole(MemberRole.USER.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         // Report-Management-Service
                         .requestMatchers(
                                 HttpMethod.GET, "/api/v1/report/post/**"

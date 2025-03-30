@@ -9,12 +9,16 @@ import com.nest.core.comment_management_service.exception.DeleteCommentFailExcep
 import com.nest.core.comment_management_service.exception.EditCommentFailException;
 import com.nest.core.comment_management_service.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -81,4 +85,11 @@ public class CommentApiController {
         }
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<Page<GetCommentResponse>> getCommentById(
+            @PathVariable Long userId,
+            Pageable pageable) {
+        Page<GetCommentResponse> comments = commentService.getComment(userId, pageable);
+        return ResponseEntity.ok(comments);
+    }
 }
