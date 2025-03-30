@@ -85,7 +85,7 @@ public class CommentApiController {
         }
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<Page<GetCommentResponse>> getCommentById(
             @PathVariable Long userId,
             Pageable pageable) {
