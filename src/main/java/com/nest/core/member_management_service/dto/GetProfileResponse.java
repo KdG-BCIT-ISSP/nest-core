@@ -13,6 +13,7 @@ public class GetProfileResponse {
     private final String username;
     private final String avatar;
     private final String region;
+    private final Long userId;
 
     public GetProfileResponse(Member member) {
         this.role = member.getRole();
@@ -20,5 +21,6 @@ public class GetProfileResponse {
         this.username = member.getUsername();
         this.avatar = member.getAvatar().get("image").asText();
         this.region = member.getRegion();
+        this.userId = member.getId();
     }
 }
