@@ -1,5 +1,6 @@
 package com.nest.core.comment_management_service.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.nest.core.comment_management_service.model.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,6 +15,8 @@ public class GetCommentResponse {
     private Long id;
     private Long postId;
     private Long memberId;
+    private JsonNode memberAvatar;
+    private String userName;
     private String content;
     private Date createAt;
     private boolean isEdit;
@@ -28,6 +31,8 @@ public class GetCommentResponse {
         this.id = comment.getId();
         this.postId = comment.getPost().getId();
         this.memberId = comment.getMember().getId();
+        this.memberAvatar = comment.getMember().getAvatar();
+        this.userName = comment.getMember().getUsername();
         this.content = comment.getContent();
         this.createAt = comment.getCreateAt();
         this.isEdit = comment.isEdit();
