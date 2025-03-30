@@ -1,5 +1,6 @@
 package com.nest.core.post_management_service.dto;
 
+import com.nest.core.comment_management_service.dto.GetCommentResponse;
 import com.nest.core.comment_management_service.model.Comment;
 import com.nest.core.post_management_service.model.Post;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ public class GetPostResponse implements ContentResponse{
     private String memberUsername;
     private String memberAvatar;
     private Set<String> tagNames;
-    private Set<Comment> comment;
+    private Set<GetCommentResponse> comment;
     private List<String> imageBase64;
     private Long likesCount;
     private Long viewCount;
@@ -42,7 +43,9 @@ public class GetPostResponse implements ContentResponse{
         this.tagNames = post.getPostTags().stream()
                 .map(postTag -> postTag.getTag().getName())
                 .collect(Collectors.toSet());
-        this.comment = post.getComments();
+        this.comment = post.getComments().stream()
+                .map(GetCommentResponse::new)
+                .collect(Collectors.toSet());
         this.imageBase64 = post.getPostImages().stream()
                 .map(image -> image.getImageType() + "," + Base64.getEncoder().encodeToString(image.getImageData()))
                 .collect(Collectors.toList());
@@ -69,7 +72,9 @@ public class GetPostResponse implements ContentResponse{
         this.tagNames = post.getPostTags().stream()
                 .map(postTag -> postTag.getTag().getName())
                 .collect(Collectors.toSet());
-        this.comment = post.getComments();
+        this.comment = post.getComments().stream()
+                .map(GetCommentResponse::new)
+                .collect(Collectors.toSet());
         this.imageBase64 = post.getPostImages().stream()
                 .map(image -> image.getImageType() + "," + Base64.getEncoder().encodeToString(image.getImageData()))
                 .collect(Collectors.toList());
