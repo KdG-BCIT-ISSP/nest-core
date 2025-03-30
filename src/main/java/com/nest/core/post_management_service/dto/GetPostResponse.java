@@ -72,7 +72,9 @@ public class GetPostResponse implements ContentResponse{
         this.tagNames = post.getPostTags().stream()
                 .map(postTag -> postTag.getTag().getName())
                 .collect(Collectors.toSet());
-        this.comment = post.getComments();
+        this.comment = post.getComments().stream()
+                .map(GetCommentResponse::new)
+                .collect(Collectors.toSet());
         this.imageBase64 = post.getPostImages().stream()
                 .map(image -> image.getImageType() + "," + Base64.getEncoder().encodeToString(image.getImageData()))
                 .collect(Collectors.toList());
