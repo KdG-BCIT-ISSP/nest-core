@@ -1,15 +1,15 @@
 version: '3.9'
 
 services:
-  redis:
-    image: "redis:latest"
-    hostname: "redis"
-    volumes:
-      - ./redis/data:/data
-      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
+#  redis:
+#    image: "redis:latest"
+#    hostname: "redis"
+#    volumes:
+#      - ./redis/data:/data
+#      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+#    restart: unless-stopped
+#    ports:
+#      - "6379:6379"
 
   nest-core:
     build:
@@ -18,9 +18,9 @@ services:
     container_name: nest-core
     ports:
       - "8080:8080"
-    depends_on:
-      - redis
-    links:
-      - redis
+#    depends_on:
+#      - redis
+#    links:
+#      - redis
     env_file:
       - ./src/main/resources/.env
