@@ -122,7 +122,7 @@ public class SecurityConfig {
                                 HttpMethod.GET,"/api/v1/comment"
                         ).hasAnyRole(MemberRole.USER.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         .requestMatchers(
-                                HttpMethod.GET,"/api/v1/comment/*"
+                                HttpMethod.GET,"/api/v1/comment/user/*"
                         ).hasAnyRole(MemberRole.USER.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         // Report-Management-Service
                         .requestMatchers(
