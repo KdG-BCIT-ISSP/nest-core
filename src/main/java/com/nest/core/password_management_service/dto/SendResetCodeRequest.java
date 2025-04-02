@@ -9,4 +9,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SendResetCodeRequest {
     private String email;
+    private String resetUrl;
 }

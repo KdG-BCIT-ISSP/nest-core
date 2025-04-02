@@ -38,7 +38,7 @@ public class PasswordApiController {
     @PostMapping("/forgot")
     public ResponseEntity<?> forgotPassword(@RequestBody SendResetCodeRequest codeRequest, HttpServletRequest request) {
         String resetUID = passwordService.generateResetToken(codeRequest);
-        mailService.sendResetUID(codeRequest.getEmail(), request.getHeader("Origin"), resetUID);
+        mailService.sendResetUID(codeRequest.getEmail(), codeRequest.getResetUrl(), resetUID);
         return ResponseEntity.ok("Reset token successfully sent to " + codeRequest.getEmail());
     }
 
