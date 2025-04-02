@@ -14,6 +14,9 @@ import com.nest.core.post_management_service.exception.RemoveBookmarkFailExcepti
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.service.ArticleService;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Optional;
+
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -100,4 +103,20 @@ public class ArticleApiController {
         return ResponseEntity.ok(articleService.getArticlesByUserId(userId));
     }
 
+    @GetMapping("/mostActive")
+    public ResponseEntity<?> getMostActive(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestParam("count") Optional<Integer> count,
+        @RequestParam("region") Optional<String> region
+    ) {
+        if (userDetails instanceof CustomSecurityUserDetails) {
+            String userRole = userDetails.getAuthorities().stream()
+                    .findFirst()
+                    .map(GrantedAuthority::getAuthority)
+                    .orElse("ROLE_USER");
+            return ResponseEntity.ok(articleService.getMostActiveArticles(count, region, userRole));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+    }
 }

@@ -6,6 +6,9 @@ import com.nest.core.post_management_service.dto.EditPostRequest;
 import com.nest.core.post_management_service.exception.*;
 import com.nest.core.post_management_service.service.PostService;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Optional;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
@@ -88,4 +91,20 @@ public class PostApiController {
         return ResponseEntity.ok(postService.getPostsByUserId(userId));
     }
 
+    @GetMapping("/mostActive")
+    public ResponseEntity<?> getMostActive(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestParam("count") Optional<Integer> count,
+        @RequestParam("region") Optional<String> region
+    ) {
+        if (userDetails instanceof CustomSecurityUserDetails) {
+            String userRole = userDetails.getAuthorities().stream()
+                    .findFirst()
+                    .map(GrantedAuthority::getAuthority)
+                    .orElse("ROLE_USER");
+            return ResponseEntity.ok(postService.getMostActivePost(count, region, userRole));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+    }
 }
