@@ -214,36 +214,20 @@ public class PostService {
         if (!userRole.equals("ROLE_ADMIN") && !userRole.equals("ROLE_SUPER_ADMIN")) {
             throw new GetActivePermissionException("Not authorized to get most active articles");
         }
-        int limit = count.orElse(10);
-        Specification<Post> postType = PostSpecification.isPost();
-        if (region.isPresent()) {
-            Specification<Post> regionSpec = PostSpecification.fromRegion(region.get());
-            Specification<Post> spec = postType.and(regionSpec);
+        Specification<Post> spec = PostSpecification.isPost();
+        if (region.isPresent()) spec = spec.and(PostSpecification.fromRegion(region.get()));
 
-            List<Post> posts = searchRepository.findAll(spec);
-            posts.sort(
-                Comparator.comparingInt((Post post) -> post.getComments().size())
-                        .thenComparingLong(Post::getLikesCount)
-                        .thenComparingLong(Post::getViewCount)
-                        .reversed()
-            );
-            return posts.stream()
-                    .map(GetPostResponse::new)
-                    .limit(limit)
-                    .collect(Collectors.toList());
-        } else {
-            List<Post> posts = searchRepository.findAll(postType);
-            posts.sort(
-                Comparator.comparingInt((Post post) -> post.getComments().size())
-                        .thenComparingLong(Post::getLikesCount)
-                        .thenComparingLong(Post::getViewCount)
-                        .reversed()
-            );
-            return posts.stream()
-                    .map(GetPostResponse::new)
-                    .limit(limit)
-                    .collect(Collectors.toList());
-        }
+        List<Post> posts = searchRepository.findAll(spec);
+        posts.sort(
+            Comparator.comparingInt((Post post) -> post.getComments().size())
+                    .thenComparingLong(Post::getLikesCount)
+                    .thenComparingLong(Post::getViewCount)
+                    .reversed()
+        );
+        return posts.stream()
+                .map(GetPostResponse::new)
+                .limit(count.orElse(10))
+                .collect(Collectors.toList());
     }
 
 }
