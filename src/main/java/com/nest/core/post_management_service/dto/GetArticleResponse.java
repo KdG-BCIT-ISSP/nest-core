@@ -30,6 +30,7 @@ public class GetArticleResponse implements ContentResponse{
     private boolean isBookmarked;
     private boolean isLiked;
     private LocalDateTime createdAt;
+    private Long topicId;
 
     public GetArticleResponse(Post post, Long userId){
         this.id = post.getId();
@@ -61,7 +62,7 @@ public class GetArticleResponse implements ContentResponse{
         this.viewCount = post.getViewCount();
         this.shareCount = post.getShareCount();
         this.createdAt = post.getCreatedAt();
-
+        this.topicId = post.getTopic().getId();
     }
 
     public GetArticleResponse(Post post){
@@ -89,6 +90,6 @@ public class GetArticleResponse implements ContentResponse{
         this.viewCount = post.getViewCount();
         this.shareCount = post.getShareCount();
         this.createdAt = post.getCreatedAt();
-
+        this.topicId = post.getTopic().getId();
     }
 }
