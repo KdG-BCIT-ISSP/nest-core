@@ -98,8 +98,7 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new DeletePostFailException("Post not found"));
 
-        if (!post.getMember().getId().equals(userId) ||
-                // TODO Check which roles are allowed to delete userPost
+        if (!post.getMember().getId().equals(userId) &&
                 (!userRole.equals("ROLE_ADMIN")
                         && !userRole.equals("ROLE_MODERATOR")
                         && !userRole.equals("ROLE_SUPER_ADMIN"))) {
