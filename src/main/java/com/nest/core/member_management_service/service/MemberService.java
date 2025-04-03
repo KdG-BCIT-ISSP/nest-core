@@ -5,6 +5,7 @@ import com.nest.core.member_management_service.dto.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nest.core.auth_service.dto.LoginTokenDto;
 import com.nest.core.member_management_service.exception.DuplicateMemberFoundException;
+import com.nest.core.member_management_service.exception.GetActivePermissionException;
 import com.nest.core.member_management_service.exception.InvalidPasswordException;
 import com.nest.core.member_management_service.exception.MemberNotFoundException;
 import com.nest.core.member_management_service.exception.ProfileUpdateException;
@@ -17,8 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -145,5 +148,23 @@ public class MemberService {
 
         member.setRole(updateRoleRequest.getMemberRole());
         memberRepository.save(member);
+    }
+
+    public List<GetProfileResponse> getMostActiveUsers(Optional<Integer> count, Optional<String> region, String userRole) {
+        if (!userRole.equals("ROLE_ADMIN") && !userRole.equals("ROLE_SUPER_ADMIN")) {
+            throw new GetActivePermissionException("You are not authorized to view most active users.");
+        }
+        List<Member> members;
+        if (region.isPresent()) members = memberRepository.findAllByRegion(region.get());
+        else members = memberRepository.findAll();
+
+        members.sort(Comparator.comparingInt((Member member) -> member.getPosts().size())
+                .thenComparingInt(member -> member.getComments().size())
+                .reversed()
+        );
+        return members.stream()
+                .map(GetProfileResponse::new)
+                .limit(count.orElse(10))
+                .collect(Collectors.toList());
     }
 }

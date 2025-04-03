@@ -3,6 +3,7 @@ package com.nest.core.search_service.specification;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import com.nest.core.member_management_service.model.Member;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.model.PostTag;
 import com.nest.core.search_service.exception.BadRequestException;
@@ -46,6 +47,13 @@ public class PostSpecification {
     public static Specification<Post> hasContent(String content) {
         return (root, query, criteriaBuilder) -> {
             return criteriaBuilder.like(root.get("content"), "%" + content + "%");
+        };
+    }
+
+    public static Specification<Post> fromRegion(String region) {
+        return (root, query, criteriaBuilder) -> {
+            Join<Post, Member> memberJoin = root.join("member");
+            return criteriaBuilder.equal(memberJoin.get("region"), region);
         };
     }
 

@@ -11,6 +11,8 @@ import com.nest.core.post_management_service.model.PostTag;
 import com.nest.core.post_management_service.repository.PostImageRepository;
 import com.nest.core.post_management_service.repository.PostRepository;
 import com.nest.core.post_management_service.repository.PostTagRepository;
+import com.nest.core.search_service.repository.SearchRepository;
+import com.nest.core.search_service.specification.PostSpecification;
 import com.nest.core.tag_management_service.model.Tag;
 import com.nest.core.tag_management_service.repository.TagRepository;
 import com.nest.core.topic_management_service.model.Topic;
@@ -18,6 +20,8 @@ import com.nest.core.topic_management_service.repository.TopicRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -34,6 +38,7 @@ public class PostService {
     private final TopicRepository topicRepository;
     private final TagRepository tagRepository;
     private final PostTagRepository postTagRepository;
+    private final SearchRepository searchRepository;
 
     public void createPost(CreatePostRequest createPostRequest, Long userId) {
         Member member = findMemberById(userId);
@@ -202,6 +207,27 @@ public class PostService {
 
     public List<GetPostResponse> getPostsByUserId(Long userId){
         return postRepository.findAllPostsByUserId(userId).stream().map(GetPostResponse::new).collect(Collectors.toList());
+    }
+
+    public List<GetPostResponse> getMostActivePost(Optional<Integer> count, Optional<String> region, String userRole)
+    {
+        if (!userRole.equals("ROLE_ADMIN") && !userRole.equals("ROLE_SUPER_ADMIN")) {
+            throw new GetActivePermissionException("Not authorized to get most active articles");
+        }
+        Specification<Post> spec = PostSpecification.isPost();
+        if (region.isPresent()) spec = spec.and(PostSpecification.fromRegion(region.get()));
+
+        List<Post> posts = searchRepository.findAll(spec);
+        posts.sort(
+            Comparator.comparingInt((Post post) -> post.getComments().size())
+                    .thenComparingLong(Post::getLikesCount)
+                    .thenComparingLong(Post::getViewCount)
+                    .reversed()
+        );
+        return posts.stream()
+                .map(GetPostResponse::new)
+                .limit(count.orElse(10))
+                .collect(Collectors.toList());
     }
 
 }

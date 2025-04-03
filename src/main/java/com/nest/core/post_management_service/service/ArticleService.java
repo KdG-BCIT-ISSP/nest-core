@@ -13,11 +13,14 @@ import com.nest.core.post_management_service.dto.GetArticleResponse;
 import com.nest.core.post_management_service.exception.AddBookmarkFailException;
 import com.nest.core.post_management_service.exception.DeleteArticleFailException;
 import com.nest.core.post_management_service.exception.EditArticleFailException;
+import com.nest.core.post_management_service.exception.GetActivePermissionException;
 import com.nest.core.post_management_service.exception.RemoveBookmarkFailException;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.model.PostTag;
 import com.nest.core.post_management_service.repository.PostRepository;
 import com.nest.core.post_management_service.repository.PostTagRepository;
+import com.nest.core.search_service.repository.SearchRepository;
+import com.nest.core.search_service.specification.PostSpecification;
 import com.nest.core.tag_management_service.model.Tag;
 import com.nest.core.tag_management_service.repository.TagRepository;
 import com.nest.core.topic_management_service.model.Topic;
@@ -25,11 +28,15 @@ import com.nest.core.topic_management_service.repository.TopicRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,6 +50,7 @@ public class ArticleService {
     private final TopicRepository topicRepository;
     private final TagRepository tagRepository;
     private final PostTagRepository postTagRepository;
+    private final SearchRepository searchRepository;
 
     @Transactional
     public void createArticle(CreateArticleRequest createArticleRequest, Long userId) {
@@ -163,5 +171,26 @@ public class ArticleService {
 
     public List<GetArticleResponse> getArticlesByUserId(Long userId){
         return postRepository.findAllArticlesByUserId(userId).stream().map(GetArticleResponse::new).collect(Collectors.toList());
+    }
+
+    public List<GetArticleResponse> getMostActiveArticles(Optional<Integer> count, Optional<String> region, String userRole)
+    {
+        if (!userRole.equals("ROLE_ADMIN") && !userRole.equals("ROLE_SUPER_ADMIN")) {
+            throw new GetActivePermissionException("Not authorized to get most active articles");
+        }
+        Specification<Post> spec = PostSpecification.isArticle();
+        if (region.isPresent()) spec = spec.and(PostSpecification.fromRegion(region.get()));
+
+        List<Post> articles = searchRepository.findAll(spec);
+        articles.sort(
+            Comparator.comparingInt((Post post) -> post.getComments().size())
+                    .thenComparingLong(Post::getLikesCount)
+                    .thenComparingLong(Post::getViewCount)
+                    .reversed()
+        );
+        return articles.stream()
+                .map(GetArticleResponse::new)
+                .limit(count.orElse(10))
+                .collect(Collectors.toList());
     }
 }
