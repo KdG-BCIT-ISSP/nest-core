@@ -115,21 +115,41 @@ public class CommentInteractionService {
         }
         for (String key : keys) {
             String[] parts = key.split(":");
-            if (parts.length < 3) {
+            if (parts.length < 3 || !"comment".equals(parts[0]) || !"likes".equals(parts[1])) {
                 log.warn("Invalid Redis key format: {}", key);
                 continue;
             }
+
+            Long commentId;
+            if (parts.length == 3) {
+                try {
+                    commentId = Long.parseLong(parts[2]);
+                } catch (NumberFormatException e) {
+                    log.error("Failed to parse commentId from key: {}", key, e);
+                    continue;
+                }
+            } else if (parts.length == 4 && "count".equals(parts[2])) {
+                try {
+                    commentId = Long.parseLong(parts[3]);
+                } catch (NumberFormatException e) {
+                    log.error("Failed to parse commentId from key: {}", key, e);
+                    continue;
+                }
+            } else {
+                log.warn("Unexpected key format: {}", key);
+                continue;
+            }
+
             try {
-                Long commentId = Long.parseLong(parts[2]);
                 if (!commentRepository.existsById(commentId)) {
                     log.warn("Comment with ID {} not found, removing stale Redis keys", commentId);
-                    redisTemplate.delete(key);
+                    redisTemplate.delete(getLikeKey(commentId));
                     redisTemplate.delete(getLikeCountKey(commentId));
                     continue;
                 }
-                syncLikes(commentId);
-            } catch (NumberFormatException e) {
-                log.error("Failed to parse commentId from key: {}", key, e);
+                if (parts.length == 3) {
+                    syncLikes(commentId);
+                }
             } catch (Exception e) {
                 log.error("Error syncing data for key: {}", key, e);
             }
