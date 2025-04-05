@@ -103,11 +103,24 @@ public class ContentInteractionController {
     }
 
     @GetMapping("/id/{contentId}")
-    public ResponseEntity<?> getArticle(@PathVariable Long contentId) {
-        try {
-            return ResponseEntity.ok(interactionService.getContent(contentId));
-        } catch (Exception e) {
-            throw new GetArticleFailException("Failed to get article: " + e.getMessage());
+    public ResponseEntity<?> getArticle(
+            @PathVariable Long contentId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            try {
+                return ResponseEntity.ok(interactionService.getContent(contentId, userId));
+
+            } catch (Exception e) {
+                throw new GetArticleFailException("Failed to get article: " + e.getMessage());
+            }
+        } else {
+            try {
+                return ResponseEntity.ok(interactionService.getContent(contentId));
+
+            } catch (Exception e) {
+                throw new GetArticleFailException("Failed to get article: " + e.getMessage());
+            }
         }
     }
 

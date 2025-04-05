@@ -284,4 +284,20 @@ public class ContentInteractionService {
             throw new RuntimeException("Unknown content type");
         }
     }
+
+    public ContentResponse getContent(Long contentId, Long userId) {
+        if (contentId == null) {
+            log.warn("Invalid input: contentId is null");
+            throw new IllegalArgumentException("contentId must not be null");
+        }
+        Post post = postRepository.findById(contentId)
+                .orElseThrow(() -> new RuntimeException("Content not found"));
+        if (Objects.equals(post.getType(), "ARTICLE")) {
+            return new GetArticleResponse(post, userId);
+        } else if (Objects.equals(post.getType(), "USERPOST")) {
+            return new GetPostResponse(post, userId);
+        } else {
+            throw new RuntimeException("Unknown content type");
+        }
+    }
 }
