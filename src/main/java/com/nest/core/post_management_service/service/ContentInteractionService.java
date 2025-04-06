@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.redis.connection.DataType;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -189,7 +190,8 @@ public class ContentInteractionService {
     @Transactional
     protected void syncLikes(Long postId) {
         try {
-            Set<Object> userIds = redisTemplate.opsForSet().members(getLikeKey(postId));
+            String likeKey = getLikeKey(postId);
+            Set<Object> userIds = redisTemplate.opsForSet().members(likeKey);
             if (userIds != null && !userIds.isEmpty()) {
                 for (Object userId : userIds) {
                     Long memberId = Long.valueOf(userId.toString());
@@ -200,6 +202,20 @@ public class ContentInteractionService {
             }
         } catch (Exception e) {
             log.error("Error syncing likes to DB for postId: {}", postId, e);
+        }
+    }
+
+    @Transactional
+    protected void syncViews(Long postId) {
+        try {
+            String viewKey = getViewKey(postId);
+            Object viewCount = redisTemplate.opsForValue().get(viewKey);
+            if (viewCount != null) {
+                Long views = (viewCount instanceof Integer) ? ((Integer) viewCount).longValue() : (Long) viewCount;
+                postRepository.updateViews(postId, views);
+            }
+        } catch (Exception e) {
+            log.error("Error syncing views to DB for postId: {}", postId, e);
         }
     }
 
@@ -223,21 +239,60 @@ public class ContentInteractionService {
         postLikeRepository.save(postLike);
     }
 
+    @Scheduled(fixedRate = 60000)
+    @Transactional
+    public void syncWithDatabase() {
+        Set<String> keys = redisTemplate.keys("content:*");
+        if (keys == null || keys.isEmpty()) {
+            return;
+        }
+        for (String key : keys) {
+            String[] parts = key.split(":");
+            if (parts.length < 3 || !"content".equals(parts[0])) {
+                log.warn("Invalid Redis key format: {}", key);
+                continue;
+            }
+
+            Long postId;
+            try {
+                postId = Long.parseLong(parts[2]);
+            } catch (NumberFormatException e) {
+                log.error("Failed to parse postId from key: {}", key, e);
+                continue;
+            }
+
+            try {
+                if (!postRepository.existsById(postId)) {
+                    log.warn("Post with ID {} not found, removing stale Redis keys", postId);
+                    redisTemplate.delete(getLikeKey(postId));
+                    redisTemplate.delete(getViewKey(postId));
+                    continue;
+                }
+
+                if ("likes".equals(parts[1])) {
+                    syncLikes(postId);
+                    redisTemplate.delete(getLikeKey(postId));
+                } else if ("views".equals(parts[1])) {
+                    syncViews(postId);
+                    redisTemplate.delete(getViewKey(postId));
+                }
+            } catch (Exception e) {
+                log.error("Error syncing data for key: {}", key, e);
+            }
+        }
+    }
+
     @Transactional
     public boolean toggleBookmark(Long postId, Long userId) {
         if (postId == null || userId == null) {
             throw new IllegalArgumentException("postId and userId must not be null");
         }
-
         try {
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new AddBookmarkFailException("Article not found"));
-
             Member member = memberRepository.findById(userId)
                     .orElseThrow(() -> new AddBookmarkFailException("Member not found"));
-
             boolean alreadyBookmarked = post.getBookmarkedMembers().contains(member);
-
             if (alreadyBookmarked) {
                 member.getBookmarkedPosts().remove(post);
                 post.getBookmarkedMembers().remove(member);
@@ -245,10 +300,8 @@ public class ContentInteractionService {
                 member.getBookmarkedPosts().add(post);
                 post.getBookmarkedMembers().add(member);
             }
-
             memberRepository.save(member);
             postRepository.save(post);
-
             return !alreadyBookmarked;
         } catch (Exception e) {
             log.error("Error toggling bookmark for postId: {}, userId: {}", postId, userId, e);
