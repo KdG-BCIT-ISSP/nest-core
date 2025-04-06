@@ -79,18 +79,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new GetCommentFailException("Comment not found"));
 
-        Long parentId = (comment.getParent() != null) ? comment.getParent().getId() : null;
-
-        return new GetCommentResponse(
-                comment.getId(),
-                comment.getPost().getId(),
-                comment.getMember().getId(),
-                comment.getMember().getAvatar(),
-                comment.getMember().getUsername(),
-                comment.getContent(),
-                comment.getCreateAt(),
-                comment.isEdit(),
-                parentId);
+        return new GetCommentResponse(comment);
     }
 
     public void deleteComment(Long userId, Long commentId, String userRole) {
