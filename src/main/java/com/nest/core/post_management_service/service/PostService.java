@@ -53,9 +53,8 @@ public class PostService {
     }
 
     public Page<GetPostResponse> getPosts(Long userId, Pageable pageable) {
-        List<Post> userPosts = postRepository.findAllPosts();
-        Page<Post> userPostPage = new PageImpl<>(userPosts, pageable, userPosts.size());
-        return userPostPage.map(userPost -> new GetPostResponse(userPost, userId));
+        Page<Post> userPosts = postRepository.findAllPosts(pageable);
+        return userPosts.map(post -> new GetPostResponse(post, userId));
     }
     @Transactional
     public EditPostResponse editPost(EditPostRequest editPostRequest, Long userId) {

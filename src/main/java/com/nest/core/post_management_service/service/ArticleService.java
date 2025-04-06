@@ -86,9 +86,8 @@ public class ArticleService {
     }
 
     public Page<GetArticleResponse> getArticles(Long userId, Pageable pageable) {
-        List<Post> articles = postRepository.findAllArticles();
-        Page<Post> articlePage = new PageImpl<>(articles, pageable, articles.size());
-        return articlePage.map(article -> new GetArticleResponse(article, userId));
+        Page<Post> articles = postRepository.findAllArticles(pageable);
+        return articles.map(article -> new GetArticleResponse(article, userId));
     }
 
     @Transactional
