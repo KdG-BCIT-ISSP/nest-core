@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,14 +40,14 @@ public class PostApiController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getPosts(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getPosts(@AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
         Long userId = null;
 
         if (userDetails instanceof CustomSecurityUserDetails customUser) {
             userId = customUser.getUserId();
         }
         try {
-            return ResponseEntity.ok(postService.getPosts(userId));
+            return ResponseEntity.ok(postService.getPosts(userId, pageable));
         } catch (Exception e) {
             throw new GetPostFailException("Failed to get articles: " + e.getMessage());
         }

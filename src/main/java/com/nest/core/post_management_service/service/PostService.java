@@ -21,6 +21,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -49,10 +52,10 @@ public class PostService {
         saveImages(createPostRequest, createdPost);
     }
 
-    public List<GetPostResponse> getPosts(Long userId) {
-        return postRepository.findAllPosts().stream()
-                .map(post -> new GetPostResponse(post, userId))
-                .collect(Collectors.toList());
+    public Page<GetPostResponse> getPosts(Long userId, Pageable pageable) {
+        List<Post> userPosts = postRepository.findAllPosts();
+        Page<Post> userPostPage = new PageImpl<>(userPosts, pageable, userPosts.size());
+        return userPostPage.map(userPost -> new GetPostResponse(userPost, userId));
     }
     @Transactional
     public EditPostResponse editPost(EditPostRequest editPostRequest, Long userId) {
