@@ -10,8 +10,10 @@ import com.nest.core.member_management_service.controller.MemberApiController;
 import com.nest.core.member_management_service.exception.DuplicateMemberFoundException;
 import com.nest.core.member_management_service.exception.InvalidPasswordException;
 import com.nest.core.member_management_service.exception.MemberNotFoundException;
+import com.nest.core.password_management_service.controller.PasswordApiController;
 import com.nest.core.password_management_service.exception.InvalidNewPasswordException;
 import com.nest.core.password_management_service.exception.InvalidResetCodeException;
+import com.nest.core.password_management_service.service.PasswordService;
 import com.nest.core.post_management_service.controller.ArticleApiController;
 import com.nest.core.post_management_service.exception.CreateArticleFailException;
 import com.nest.core.post_management_service.exception.GetArticleFailException;
@@ -24,7 +26,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice(annotations = {RestController.class}, basePackageClasses = {
-        AuthApiController.class, MemberApiController.class, ArticleApiController.class
+        AuthApiController.class, MemberApiController.class, ArticleApiController.class, PasswordApiController.class, PasswordService.class
 })
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
