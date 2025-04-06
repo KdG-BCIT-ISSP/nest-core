@@ -86,8 +86,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new DeleteArticleFailException("Comment not found"));
 
-        if (!comment.getMember().getId().equals(userId) ||
-                // TODO Check which roles are allowed to delete articles
+        if (!comment.getMember().getId().equals(userId) &&
                 (!userRole.equals("ROLE_ADMIN")
                         && !userRole.equals("ROLE_MODERATOR")
                         && !userRole.equals("ROLE_SUPER_ADMIN"))) {
