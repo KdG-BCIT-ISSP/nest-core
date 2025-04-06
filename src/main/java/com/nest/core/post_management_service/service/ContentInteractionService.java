@@ -12,15 +12,21 @@ import com.nest.core.post_management_service.model.PostLike;
 import com.nest.core.post_management_service.repository.BookmarkRepository;
 import com.nest.core.post_management_service.repository.PostLikeRepository;
 import com.nest.core.post_management_service.repository.PostRepository;
+import com.nest.core.search_service.repository.SearchRepository;
+import com.nest.core.search_service.specification.PostSpecification;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,6 +40,7 @@ public class ContentInteractionService {
     private final PostLikeRepository postLikeRepository;
     private final MemberRepository memberRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final SearchRepository searchRepository;
 
     private String getLikeKey(Long postId) {
         return "content:likes:" + postId;
@@ -298,6 +305,34 @@ public class ContentInteractionService {
             return new GetPostResponse(post, userId);
         } else {
             throw new RuntimeException("Unknown content type");
+        }
+    }
+
+    public List<ContentResponse> getMostActive(Optional<Integer> count, Optional<String> region, String type) {
+
+        Specification<Post> specification;
+        if (type.equals("ARTICLE")) specification = PostSpecification.isArticle();
+        else specification = PostSpecification.isPost();
+
+        int limit = count.orElse(10);
+        if (region.isPresent()) specification = specification.and(PostSpecification.fromRegion(region.get()));
+        List<Post> posts = searchRepository.findAll(specification);
+        posts.sort(
+                Comparator.comparingInt((Post post) -> post.getComments().size())
+                        .thenComparingLong(Post::getLikesCount)
+                        .thenComparingLong(Post::getViewCount)
+                        .reversed()
+        );
+        if (type.equals("ARTICLE")) {
+            return posts.stream()
+                    .map(GetArticleResponse::new)
+                    .limit(limit)
+                    .collect(Collectors.toList());
+        } else {
+            return posts.stream()
+                    .map(GetPostResponse::new)
+                    .limit(limit)
+                    .collect(Collectors.toList());
         }
     }
 }

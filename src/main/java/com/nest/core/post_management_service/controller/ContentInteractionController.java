@@ -4,6 +4,9 @@ import com.nest.core.auth_service.dto.CustomSecurityUserDetails;
 import com.nest.core.post_management_service.exception.GetArticleFailException;
 import com.nest.core.post_management_service.service.ContentInteractionService;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Optional;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -124,4 +127,19 @@ public class ContentInteractionController {
         }
     }
 
+    @GetMapping("/article/mostActive")
+    public ResponseEntity<?> getMostActive(
+        @RequestParam("count") Optional<Integer> count,
+        @RequestParam("region") Optional<String> region
+    ) {
+        return ResponseEntity.ok(interactionService.getMostActive(count, region, "ARTICLE"));
+    }
+
+    @GetMapping("/post/mostActive")
+    public ResponseEntity<?> getMostActivePost(
+        @RequestParam("count") Optional<Integer> count,
+        @RequestParam("region") Optional<String> region
+    ) {
+        return ResponseEntity.ok(interactionService.getMostActive(count, region, "USERPOST"));
+    }
 }

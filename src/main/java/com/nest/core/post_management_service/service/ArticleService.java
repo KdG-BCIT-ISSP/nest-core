@@ -171,25 +171,4 @@ public class ArticleService {
     public List<GetArticleResponse> getArticlesByUserId(Long userId){
         return postRepository.findAllArticlesByUserId(userId).stream().map(GetArticleResponse::new).collect(Collectors.toList());
     }
-
-    public List<GetArticleResponse> getMostActiveArticles(Optional<Integer> count, Optional<String> region, String userRole)
-    {
-        if (!userRole.equals("ROLE_ADMIN") && !userRole.equals("ROLE_SUPER_ADMIN")) {
-            throw new GetActivePermissionException("Not authorized to get most active articles");
-        }
-        Specification<Post> spec = PostSpecification.isArticle();
-        if (region.isPresent()) spec = spec.and(PostSpecification.fromRegion(region.get()));
-
-        List<Post> articles = searchRepository.findAll(spec);
-        articles.sort(
-            Comparator.comparingInt((Post post) -> post.getComments().size())
-                    .thenComparingLong(Post::getLikesCount)
-                    .thenComparingLong(Post::getViewCount)
-                    .reversed()
-        );
-        return articles.stream()
-                .map(GetArticleResponse::new)
-                .limit(count.orElse(10))
-                .collect(Collectors.toList());
-    }
 }
