@@ -248,7 +248,6 @@ public class ContentInteractionService {
 
             Long postId;
             try {
-                // Handle "content:likes:[id]" or "content:views:[id]"
                 postId = Long.parseLong(parts[2]);
             } catch (NumberFormatException e) {
                 log.error("Failed to parse postId from key: {}", key, e);
@@ -265,10 +264,10 @@ public class ContentInteractionService {
 
                 if ("likes".equals(parts[1])) {
                     syncLikes(postId);
-                    redisTemplate.delete(getLikeKey(postId)); // Delete after sync
+                    redisTemplate.delete(getLikeKey(postId));
                 } else if ("views".equals(parts[1])) {
                     syncViews(postId);
-                    redisTemplate.delete(getViewKey(postId)); // Delete after sync
+                    redisTemplate.delete(getViewKey(postId));
                 }
             } catch (Exception e) {
                 log.error("Error syncing data for key: {}", key, e);
