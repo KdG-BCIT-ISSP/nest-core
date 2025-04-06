@@ -145,6 +145,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/content/*/view").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/content/*/views").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/content/id/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/content/article/mostActive").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/content/post/mostActive").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/content/*/toggleLike")
                         .hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         .requestMatchers(HttpMethod.POST, "/api/v1/content/*/toggleBookmark")

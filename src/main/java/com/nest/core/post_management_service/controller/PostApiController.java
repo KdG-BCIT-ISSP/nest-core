@@ -90,21 +90,4 @@ public class PostApiController {
 
         return ResponseEntity.ok(postService.getPostsByUserId(userId));
     }
-
-    @GetMapping("/mostActive")
-    public ResponseEntity<?> getMostActive(
-        @AuthenticationPrincipal UserDetails userDetails,
-        @RequestParam("count") Optional<Integer> count,
-        @RequestParam("region") Optional<String> region
-    ) {
-        if (userDetails instanceof CustomSecurityUserDetails) {
-            String userRole = userDetails.getAuthorities().stream()
-                    .findFirst()
-                    .map(GrantedAuthority::getAuthority)
-                    .orElse("ROLE_USER");
-            return ResponseEntity.ok(postService.getMostActivePost(count, region, userRole));
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
-        }
-    }
 }
