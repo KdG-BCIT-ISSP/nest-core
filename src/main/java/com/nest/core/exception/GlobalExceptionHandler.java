@@ -10,6 +10,10 @@ import com.nest.core.member_management_service.controller.MemberApiController;
 import com.nest.core.member_management_service.exception.DuplicateMemberFoundException;
 import com.nest.core.member_management_service.exception.InvalidPasswordException;
 import com.nest.core.member_management_service.exception.MemberNotFoundException;
+import com.nest.core.password_management_service.controller.PasswordApiController;
+import com.nest.core.password_management_service.exception.InvalidNewPasswordException;
+import com.nest.core.password_management_service.exception.InvalidResetCodeException;
+import com.nest.core.password_management_service.service.PasswordService;
 import com.nest.core.post_management_service.controller.ArticleApiController;
 import com.nest.core.post_management_service.exception.CreateArticleFailException;
 import com.nest.core.post_management_service.exception.GetArticleFailException;
@@ -22,7 +26,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice(annotations = {RestController.class}, basePackageClasses = {
-        AuthApiController.class, MemberApiController.class, ArticleApiController.class
+        AuthApiController.class, MemberApiController.class, ArticleApiController.class, PasswordApiController.class, PasswordService.class
 })
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -86,6 +90,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DeleteCommentFailException.class)
     public ResponseEntity<String> handleDeleteCommentFailException(DeleteCommentFailException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+
+    /**
+     * Password_Management_Service Exception
+     */
+
+    @ExceptionHandler(InvalidResetCodeException.class)
+    public ResponseEntity<String> handleInvalidResetCodeException(InvalidResetCodeException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidNewPasswordException.class)
+    public ResponseEntity<String> handleInvalidNewPasswordException(InvalidNewPasswordException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
 
     /**
