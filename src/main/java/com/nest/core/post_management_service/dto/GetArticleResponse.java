@@ -46,7 +46,7 @@ public class GetArticleResponse implements ContentResponse{
                 .map(postTag -> postTag.getTag().getName())
                 .collect(Collectors.toSet());
         this.comment = post.getComments().stream()
-                .map(GetCommentResponse::new)
+                .map(comment -> new GetCommentResponse(comment, memberId))
                 .collect(Collectors.toSet());
         if (post.getExtraData() != null && post.getExtraData().has("imageType") && post.getExtraData().has("imageData")) {
             this.coverImage = post.getExtraData().get("imageType").asText() + "," + post.getExtraData().get("imageData").asText();
