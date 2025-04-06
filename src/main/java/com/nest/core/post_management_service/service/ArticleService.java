@@ -10,10 +10,12 @@ import com.nest.core.post_management_service.dto.CreateArticleRequest;
 import com.nest.core.post_management_service.dto.EditArticleRequest;
 import com.nest.core.post_management_service.dto.EditArticleResponse;
 import com.nest.core.post_management_service.dto.GetArticleResponse;
+import com.nest.core.post_management_service.dto.GetContentStatsResponse;
 import com.nest.core.post_management_service.exception.AddBookmarkFailException;
 import com.nest.core.post_management_service.exception.DeleteArticleFailException;
 import com.nest.core.post_management_service.exception.EditArticleFailException;
 import com.nest.core.post_management_service.exception.GetActivePermissionException;
+import com.nest.core.post_management_service.exception.GetArticleFailException;
 import com.nest.core.post_management_service.exception.RemoveBookmarkFailException;
 import com.nest.core.post_management_service.model.Post;
 import com.nest.core.post_management_service.model.PostTag;
@@ -53,7 +55,6 @@ public class ArticleService {
     private final TopicRepository topicRepository;
     private final TagRepository tagRepository;
     private final PostTagRepository postTagRepository;
-    private final SearchRepository searchRepository;
 
     @Transactional
     public void createArticle(CreateArticleRequest createArticleRequest, Long userId) {
@@ -88,6 +89,16 @@ public class ArticleService {
     public Page<GetArticleResponse> getArticles(Long userId, Pageable pageable) {
         Page<Post> articles = postRepository.findAllArticles(pageable);
         return articles.map(article -> new GetArticleResponse(article, userId));
+    }
+
+    public List<GetContentStatsResponse> getArticleStats(String userRole) {
+        if (!userRole.equals("ROLE_ADMIN") && !userRole.equals("ROLE_SUPER_ADMIN")) {
+            throw new GetArticleFailException("Not authorized to get article stats");
+        }
+        List<Post> articles = postRepository.findAllArticles();
+        return articles.stream()
+                .map(GetContentStatsResponse::new)
+                .collect(Collectors.toList());
     }
 
     @Transactional
