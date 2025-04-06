@@ -21,7 +21,7 @@ public class Notification {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "member_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "member_id", referencedColumnName = "id")
     private Member member;
 
     @Column(name= "message", columnDefinition = "TEXT", nullable = false)
@@ -33,5 +33,9 @@ public class Notification {
     @Builder.Default
     @Column(name="is_read")
     private boolean isRead = false;
+
+    @Builder.Default
+    @Column(name = "is_Announcement")
+    private boolean isAnnouncement = false;
 
 }

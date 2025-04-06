@@ -157,6 +157,9 @@ public class SecurityConfig {
                         .hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         // Notification-Service
                         .requestMatchers(
+                                HttpMethod.GET, "/api/v1/notification"
+                        ).hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
+                        .requestMatchers(
                                 HttpMethod.GET, "/api/v1/notification/subscribe/**"
                         ).hasAnyRole(MemberRole.USER.name(),MemberRole.MODERATOR.name(),MemberRole.ADMIN.name(), MemberRole.SUPER_ADMIN.name())
                         .requestMatchers(
