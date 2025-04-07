@@ -22,6 +22,7 @@ import com.nest.core.report_management_service.dto.GetPostReportsResponse;
 import com.nest.core.report_management_service.dto.ReportCommentRequest;
 import com.nest.core.report_management_service.dto.GetArticleReportsResponse;
 import com.nest.core.report_management_service.dto.GetCommentReportResponse;
+import com.nest.core.comment_management_service.model.Comment;
 import com.nest.core.comment_management_service.repository.CommentRepository;
 
 import jakarta.transaction.Transactional;
@@ -73,17 +74,17 @@ public class ReportService {
         Member member = memberRepository.findById(userId)
             .orElseThrow(() -> new MemberNotFoundException("Member not found"));
 
-        if (!commentRepository.existsById(commentId)) {
-            throw new CommentNotFoundException("Comment not found");
-        }
-        Report report = reportRequest.toEntity(member, commentId);
+        Comment reportedComment = commentRepository.findById(commentId)
+            .orElseThrow(() -> new CommentNotFoundException("Comment not found"));
+            
+        Report report = reportRequest.toEntity(member, reportedComment);
 
         // For editing reports if already reported
         Set<Report> memberReports = member.getReports();
         for (Report r : memberReports) {
-            if (r.getCommentId() == null) continue; // Skip if not comment report
+            if (r.getComment() == null) continue; // Skip if not comment report
 
-            if (r.getCommentId().equals(commentId)) {
+            if (r.getComment().getId().equals(commentId)) {
                 r.setReason(report.getReason());
                 r.setCreatedAt(report.getCreatedAt());
                 reportRepository.save(r);
