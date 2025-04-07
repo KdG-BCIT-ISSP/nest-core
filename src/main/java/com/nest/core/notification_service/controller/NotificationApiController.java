@@ -29,16 +29,18 @@ public class NotificationApiController {
     private final NotificationService notificationService;
 
     @GetMapping("/subscribe")
-    public SseEmitter subscribe(@AuthenticationPrincipal UserDetails userDetails, HttpServletResponse response) {
+    public ResponseEntity<SseEmitter> subscribe(@AuthenticationPrincipal UserDetails userDetails, HttpServletResponse response) {
         if (userDetails instanceof CustomSecurityUserDetails customUser) {
             Long userId = customUser.getUserId();
             try {
-                return notificationService.subscribe(userId, response);
+                SseEmitter emitter = notificationService.subscribe(userId, response);
+                return ResponseEntity.ok().header("Content-Type", "text/event-stream").header("Cache-Control", "no-cache").header("Connection", "keep-alive").body(emitter);
             } catch (Exception e) {
-                throw new IllegalArgumentException("Failed to subscribe: " + e.getMessage());
+                log.error("Failed to subscribe user {}: {}", userId, e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
         } else {
-            return null;
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
 
@@ -62,5 +64,16 @@ public class NotificationApiController {
     public String sendNotification(@RequestBody AnnouncementRequest announcementRequest) {
         notificationService.createAndSendAnnouncement(announcementRequest.getMessage(), true);
         return "Announcement sent!";
+    }
+
+    @PutMapping("/read/{notificationId}")
+    public ResponseEntity<?> markNotificationAsRead(@PathVariable Long notificationId, @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails instanceof CustomSecurityUserDetails customUser) {
+            Long userId = customUser.getUserId();
+            notificationService.markNotificationAsRead(notificationId, userId);
+            return ResponseEntity.ok("Notification marked as read");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
     }
 }

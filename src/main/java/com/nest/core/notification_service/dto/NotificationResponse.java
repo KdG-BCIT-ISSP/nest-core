@@ -7,6 +7,7 @@ import java.util.Date;
 
 @Getter
 public class NotificationResponse {
+    private final Long id;
     private final String userName;
     private final String message;
     private final Date timestamp;
@@ -14,6 +15,7 @@ public class NotificationResponse {
     private final boolean isRead;
 
     public NotificationResponse(Notification notification){
+        this.id = notification.getId();
         this.userName = notification.getMember().getUsername();
         this.message = notification.getMessage();
         this.timestamp = notification.getCreatedAt();

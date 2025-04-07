@@ -74,8 +74,11 @@ public class CommentInteractionService {
                 saveLike(commentId, userId);
                 redisTemplate.opsForSet().add(key, userId.toString());
             }
+
             Long updatedCount = commentLikeRepository.countByCommentId(commentId);
             redisTemplate.opsForValue().set(countKey, updatedCount);
+            commentRepository.updateLikes(commentId, updatedCount); // Ensure DB is updated
+
             return !alreadyLiked;
         } catch (Exception e) {
             log.error("Error toggling like for commentId: {}, userId: {}", commentId, userId, e);
@@ -121,16 +124,19 @@ public class CommentInteractionService {
             }
 
             Long commentId;
-            if (parts.length == 3) {
-                try {
-                    commentId = Long.parseLong(parts[2]);
-                } catch (NumberFormatException e) {
-                    log.error("Failed to parse commentId from key: {}", key, e);
-                    continue;
-                }
-            } else if (parts.length == 4 && "count".equals(parts[2])) {
+            boolean isCountKey = false;
+
+            if (parts.length == 4 && "count".equals(parts[2])) {
+                isCountKey = true;
                 try {
                     commentId = Long.parseLong(parts[3]);
+                } catch (NumberFormatException e) {
+                    log.error("Failed to parse commentId from count key: {}", key, e);
+                    continue;
+                }
+            } else if (parts.length == 3) {
+                try {
+                    commentId = Long.parseLong(parts[2]);
                 } catch (NumberFormatException e) {
                     log.error("Failed to parse commentId from key: {}", key, e);
                     continue;
@@ -147,8 +153,14 @@ public class CommentInteractionService {
                     redisTemplate.delete(getLikeCountKey(commentId));
                     continue;
                 }
-                if (parts.length == 3) {
+
+                if (!isCountKey) {
                     syncLikes(commentId);
+                } else {
+                    Long dbCount = commentLikeRepository.countByCommentId(commentId);
+                    commentRepository.updateLikes(commentId, dbCount);
+                    redisTemplate.opsForValue().set(getLikeCountKey(commentId), dbCount);
+                    redisTemplate.delete(key);
                 }
             } catch (Exception e) {
                 log.error("Error syncing data for key: {}", key, e);
@@ -162,6 +174,7 @@ public class CommentInteractionService {
             String key = getLikeKey(commentId);
             String countKey = getLikeCountKey(commentId);
             Set<Object> userIds = redisTemplate.opsForSet().members(key);
+
             if (userIds != null && !userIds.isEmpty()) {
                 for (Object userId : userIds) {
                     saveLike(commentId, Long.valueOf(userId.toString()));
@@ -169,6 +182,9 @@ public class CommentInteractionService {
                 Long likes = commentLikeRepository.countByCommentId(commentId);
                 commentRepository.updateLikes(commentId, likes);
                 redisTemplate.opsForValue().set(countKey, likes);
+
+                redisTemplate.delete(key);
+                redisTemplate.delete(countKey);
             }
         } catch (Exception e) {
             log.error("Error syncing likes to DB for commentId: {}", commentId, e);

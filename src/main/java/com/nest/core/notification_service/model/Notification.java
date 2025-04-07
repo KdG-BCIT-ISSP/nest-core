@@ -2,13 +2,11 @@ package com.nest.core.notification_service.model;
 
 import com.nest.core.member_management_service.model.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
+@Setter
 @Getter
 @Builder
 @NoArgsConstructor
