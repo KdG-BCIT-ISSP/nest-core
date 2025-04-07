@@ -5,7 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class NotificationRequest {
-    private Long memberId;
+public class AnnouncementRequest {
     private String message;
+    private boolean isAnnouncement;
+
 }
