@@ -53,6 +53,8 @@ public class ReportService {
 
         Set<Report> memberReports = member.getReports();
         for (Report r : memberReports) {
+            if (r.getPost() == null) continue; // Skip if not post report
+
             if (r.getPost().getId().equals(postId)) {
                 r.setReason(report.getReason());
                 r.setCreatedAt(report.getCreatedAt());
@@ -79,6 +81,8 @@ public class ReportService {
         // For editing reports if already reported
         Set<Report> memberReports = member.getReports();
         for (Report r : memberReports) {
+            if (r.getCommentId() == null) continue; // Skip if not comment report
+
             if (r.getCommentId().equals(commentId)) {
                 r.setReason(report.getReason());
                 r.setCreatedAt(report.getCreatedAt());

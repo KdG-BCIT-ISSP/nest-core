@@ -53,6 +53,23 @@ public class PostApiController {
         }
     }
 
+    @GetMapping("/stats")
+    public ResponseEntity<?> getPostStats(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails instanceof CustomSecurityUserDetails) {
+            String userRole = userDetails.getAuthorities().stream()
+                    .findFirst()
+                    .map(GrantedAuthority::getAuthority)
+                    .orElse("ROLE_USER");
+            try {
+                return ResponseEntity.ok(postService.getPostStats(userRole));
+            } catch (Exception e) {
+                throw new GetPostFailException("Failed to get post stats: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user details");
+        }
+    }
+
     @PutMapping
     public ResponseEntity<?> editPost(@AuthenticationPrincipal UserDetails userDetails, @RequestBody EditPostRequest editPostRequest) {
         if (userDetails instanceof CustomSecurityUserDetails customUser){

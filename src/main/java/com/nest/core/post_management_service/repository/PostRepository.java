@@ -16,8 +16,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Post p WHERE p.type = 'ARTICLE'")
     Page<Post> findAllArticles(Pageable pageable);
 
+    @Query("SELECT p FROM Post p WHERE p.type = 'ARTICLE'")
+    List<Post> findAllArticles();
+
     @Query("SELECT p FROM Post p WHERE p.type = 'USERPOST'")
     Page<Post> findAllPosts(Pageable pageable);
+
+    @Query("SELECT p FROM Post p WHERE p.type = 'USERPOST'")
+    List<Post> findAllPosts();
 
     @Modifying
     @Transactional
