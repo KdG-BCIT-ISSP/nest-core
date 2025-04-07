@@ -65,19 +65,22 @@ public class CommentInteractionService {
         try {
             String key = getLikeKey(commentId);
             String countKey = getLikeCountKey(commentId);
+
             boolean alreadyLiked = isLiked(commentId, userId);
 
             if (alreadyLiked) {
-                commentLikeRepository.deleteByCommentIdAndMemberId(commentId, userId);
                 redisTemplate.opsForSet().remove(key, userId.toString());
+                commentLikeRepository.deleteByCommentIdAndMemberId(commentId, userId);
+                redisTemplate.opsForValue().increment(countKey, -1);
             } else {
-                saveLike(commentId, userId);
                 redisTemplate.opsForSet().add(key, userId.toString());
+                saveLike(commentId, userId);
+                redisTemplate.opsForValue().increment(countKey, 1);
             }
 
             Long updatedCount = commentLikeRepository.countByCommentId(commentId);
             redisTemplate.opsForValue().set(countKey, updatedCount);
-            commentRepository.updateLikes(commentId, updatedCount); // Ensure DB is updated
+            commentRepository.updateLikes(commentId, updatedCount); // Ensure DB is updated!!!
 
             return !alreadyLiked;
         } catch (Exception e) {

@@ -41,7 +41,6 @@ public class PostService {
     private final TopicRepository topicRepository;
     private final TagRepository tagRepository;
     private final PostTagRepository postTagRepository;
-    private final SearchRepository searchRepository;
 
     public void createPost(CreatePostRequest createPostRequest, Long userId) {
         Member member = findMemberById(userId);
@@ -53,10 +52,20 @@ public class PostService {
     }
 
     public Page<GetPostResponse> getPosts(Long userId, Pageable pageable) {
-        List<Post> userPosts = postRepository.findAllPosts();
-        Page<Post> userPostPage = new PageImpl<>(userPosts, pageable, userPosts.size());
-        return userPostPage.map(userPost -> new GetPostResponse(userPost, userId));
+        Page<Post> userPosts = postRepository.findAllPosts(pageable);
+        return userPosts.map(post -> new GetPostResponse(post, userId));
     }
+
+    public List<GetContentStatsResponse> getPostStats(String userRole) {
+        if (!userRole.equals("ROLE_ADMIN") && !userRole.equals("ROLE_SUPER_ADMIN")) {
+            throw new GetPostFailException("Not authorized to get post stats");
+        }
+        List<Post> posts = postRepository.findAllPosts();
+        return posts.stream()
+                .map(GetContentStatsResponse::new)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public EditPostResponse editPost(EditPostRequest editPostRequest, Long userId) {
         if (!editPostRequest.getMemberId().equals(userId)) {
