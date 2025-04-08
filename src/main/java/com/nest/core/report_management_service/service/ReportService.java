@@ -25,9 +25,10 @@ import com.nest.core.report_management_service.dto.GetCommentReportResponse;
 import com.nest.core.comment_management_service.model.Comment;
 import com.nest.core.comment_management_service.repository.CommentRepository;
 
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional

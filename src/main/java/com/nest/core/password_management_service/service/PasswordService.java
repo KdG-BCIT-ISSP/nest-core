@@ -15,9 +15,10 @@ import com.nest.core.password_management_service.exception.InvalidNewPasswordExc
 import com.nest.core.password_management_service.exception.InvalidOldPasswordException;
 import com.nest.core.password_management_service.exception.InvalidResetCodeException;
 
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional

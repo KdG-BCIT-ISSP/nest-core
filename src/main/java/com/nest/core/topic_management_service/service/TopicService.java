@@ -2,7 +2,7 @@ package com.nest.core.topic_management_service.service;
 
 import com.nest.core.topic_management_service.repository.TopicRepository;
 
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,6 +17,7 @@ import com.nest.core.topic_management_service.dto.GetTopicResponse;
 import com.nest.core.topic_management_service.exceptions.TopicCRUDFailException;
 import com.nest.core.topic_management_service.exceptions.TopicNotFoundException;
 import com.nest.core.topic_management_service.model.Topic;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
