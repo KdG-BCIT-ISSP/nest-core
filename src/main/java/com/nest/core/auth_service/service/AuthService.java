@@ -4,10 +4,11 @@ import com.nest.core.auth_service.dto.LoginTokenDto;
 import com.nest.core.auth_service.dto.NewTokenDto;
 import com.nest.core.auth_service.exception.RefreshTokenExpiredException;
 import com.nest.core.auth_service.security.JWTUtil;
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional

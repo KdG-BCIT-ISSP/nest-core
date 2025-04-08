@@ -12,11 +12,12 @@ import com.nest.core.member_management_service.exception.ProfileUpdateException;
 import com.nest.core.member_management_service.model.Member;
 import com.nest.core.member_management_service.model.MemberRole;
 import com.nest.core.member_management_service.repository.MemberRepository;
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
