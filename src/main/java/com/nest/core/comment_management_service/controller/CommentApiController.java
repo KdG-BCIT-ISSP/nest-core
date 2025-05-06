@@ -8,6 +8,9 @@ import com.nest.core.comment_management_service.exception.CreateCommentFailExcep
 import com.nest.core.comment_management_service.exception.DeleteCommentFailException;
 import com.nest.core.comment_management_service.exception.EditCommentFailException;
 import com.nest.core.comment_management_service.service.CommentService;
+import com.nest.core.moderation_service.exception.ContentViolationException;
+import com.nest.core.moderation_service.service.ModerationService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +29,7 @@ import java.util.List;
 public class CommentApiController {
 
     private final CommentService commentService;
+    private final ModerationService moderationService;
 
     @PostMapping
     public ResponseEntity<?> createComment(@AuthenticationPrincipal UserDetails userDetails, @RequestBody CreateCommentRequest createCommentRequest) {
@@ -33,6 +37,10 @@ public class CommentApiController {
         if (userDetails instanceof CustomSecurityUserDetails customUser){
             Long userId = customUser.getUserId();
             try{
+                String reasons = moderationService.checkTextViolation(createCommentRequest.getContent());
+                if (!reasons.isEmpty()) {
+                    throw new ContentViolationException("Your comment was flagged by our moderation service for the following violations: " + reasons);
+                }
                 commentService.createComment(userId, createCommentRequest);
                 return ResponseEntity.status(HttpStatus.CREATED).body("Comment created");
             } catch (Exception e){
@@ -49,6 +57,11 @@ public class CommentApiController {
         if (userDetails instanceof CustomSecurityUserDetails customUser){
             Long userId = customUser.getUserId();
             try {
+                String reasons = moderationService.checkTextViolation(editCommentRequest.getContent());
+                if (!reasons.isEmpty()) {
+                    throw new ContentViolationException("Your comment was flagged by our moderation service for the following violations: " + reasons);
+                }
+
                 commentService.editComment(userId, editCommentRequest);
                 return ResponseEntity.ok("Comment Edited");
             } catch (Exception e) {

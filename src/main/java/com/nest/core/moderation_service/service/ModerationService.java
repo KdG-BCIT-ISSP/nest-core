@@ -10,14 +10,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.nest.core.moderation_service.exception.FailedModerationException;
-import com.nest.core.moderation_service.util.SightEngineUtils;
+import com.nest.core.moderation_service.utils.SightEngineUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class AIModerationService {
+public class ModerationService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${moderation.api-url}")
@@ -30,7 +32,7 @@ public class AIModerationService {
     private static final String textEndpoint = "/text/check.json";
     private static final String imageEndpoint = "/check.json";
 
-    public String checkText(String text) {
+    public String checkTextViolation(String text) throws JsonMappingException, JsonProcessingException {
         String url = moderationUrl + textEndpoint;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -40,22 +42,17 @@ public class AIModerationService {
         ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
         if (response.getStatusCode().is2xxSuccessful()) {
-            try {
-                String jsonString = response.getBody();
-                return SightEngineUtils.getFirstViolationReason(jsonString);
+            String jsonString = response.getBody();
+            log.info(jsonString);
+            return SightEngineUtils.getViolationReasons(jsonString);
 
-            } catch (Exception e) {
-                log.error("Error parsing response: {}", e.getMessage());
-                throw new FailedModerationException("Failed to check text");
-            }
         } else {
-            log.error("Failed to moderate text");
-            throw new FailedModerationException("Failed to check text");
+            log.error("Failed to moderate text: " + text);
+            throw new FailedModerationException("Moderation service is down");
         }
     }
 
-    // Need to discuss with team if this one is necessary
-    public String checkImage(String imageUrl) {
+    public String checkImageViolation(String imageUrl) {
         // NOT IMPLEMENTED YET
         return "NOT IMPLEMENTED YET";
     }

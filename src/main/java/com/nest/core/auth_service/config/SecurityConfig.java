@@ -181,9 +181,6 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/api/v1/password/forgot")
                         .permitAll()
-                        // Moderation service (REMOVE LATER)
-                        .requestMatchers("/api/v1/moderation/**")
-                        .permitAll()
                         .anyRequest().authenticated()
                 ).exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint((request, response, authException) -> {
