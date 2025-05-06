@@ -46,9 +46,9 @@ public class AIModerationService {
     private MultiValueMap<String, String> createTextModerationRequest(String text) {
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
         requestBody.add("text", text);
-        requestBody.add("mode", "ml");
-        requestBody.add("lang", "en,fr");
-        requestBody.add("models", "general");
+        requestBody.add("mode", "rules");
+        requestBody.add("lang", "en,fr,de,nl");
+        requestBody.add("categories", "profanity,personal,link,spam,content-trade,money-transaction,extremism,violence");
         requestBody.add("api_user", apiUser);
         requestBody.add("api_secret", apiSecret);
         return requestBody;
