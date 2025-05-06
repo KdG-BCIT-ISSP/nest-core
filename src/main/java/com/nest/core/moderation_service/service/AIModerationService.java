@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
+import com.nest.core.moderation_service.exception.FailedModerationException;
+import com.nest.core.moderation_service.util.SightEngineUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,25 +34,29 @@ public class AIModerationService {
         String url = moderationUrl + textEndpoint;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(createTextModerationRequest(text), headers);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(
+            SightEngineUtils.createTextModerationRequest(text, apiUser, apiSecret), headers);
         ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-        return response.getBody();
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            try {
+                String jsonString = response.getBody();
+                return SightEngineUtils.getFirstViolationReason(jsonString);
+
+            } catch (Exception e) {
+                log.error("Error parsing response: {}", e.getMessage());
+                throw new FailedModerationException("Failed to check text");
+            }
+        } else {
+            log.error("Failed to moderate text");
+            throw new FailedModerationException("Failed to check text");
+        }
     }
 
     // Need to discuss with team if this one is necessary
     public String checkImage(String imageUrl) {
         // NOT IMPLEMENTED YET
         return "NOT IMPLEMENTED YET";
-    }
-
-    private MultiValueMap<String, String> createTextModerationRequest(String text) {
-        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
-        requestBody.add("text", text);
-        requestBody.add("mode", "rules");
-        requestBody.add("lang", "en,fr,de,nl");
-        requestBody.add("categories", "profanity,personal,link,spam,content-trade,money-transaction,extremism,violence");
-        requestBody.add("api_user", apiUser);
-        requestBody.add("api_secret", apiSecret);
-        return requestBody;
     }
 }
