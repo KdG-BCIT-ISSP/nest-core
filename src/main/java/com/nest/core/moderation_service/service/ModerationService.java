@@ -43,11 +43,10 @@ public class ModerationService {
 
         if (response.getStatusCode().is2xxSuccessful()) {
             String jsonString = response.getBody();
-            log.info(jsonString);
             return SightEngineUtils.getViolationReasons(jsonString);
 
         } else {
-            log.error("Failed to moderate text: " + text);
+            log.error("Failed to moderate text \"{}\": {}", text, response.getBody());
             throw new FailedModerationException("Moderation service is down");
         }
     }
