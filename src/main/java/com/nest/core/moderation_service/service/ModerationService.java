@@ -43,7 +43,7 @@ public class ModerationService {
 
         if (response.getStatusCode().is2xxSuccessful()) {
             String jsonString = response.getBody();
-            return SightEngineUtils.getViolationReasons(jsonString);
+            return SightEngineUtils.getTextViolationReasons(jsonString);
 
         } else {
             log.error("Failed to moderate text \"{}\": {}", text, response.getBody());
@@ -62,11 +62,10 @@ public class ModerationService {
 
         if (response.getStatusCode().is2xxSuccessful()) {
             String jsonString = response.getBody();
-            log.info(jsonString);
-            return SightEngineUtils.getViolationReasons(jsonString);
+            return SightEngineUtils.getImageViolationReasons(jsonString);
 
         } else {
-            log.error("Failed to moderate image \"{}\": {}", imageBase64, response.getBody());
+            log.error("Failed to moderate image: {}", response.getBody());
             throw new FailedModerationException("Moderation service is down");
         }
     }
