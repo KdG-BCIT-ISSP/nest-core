@@ -51,8 +51,23 @@ public class ModerationService {
         }
     }
 
-    public String checkImageViolation(String imageUrl) {
-        // NOT IMPLEMENTED YET
-        return "NOT IMPLEMENTED YET";
+    public String checkImageViolation(String imageBase64) throws JsonMappingException, JsonProcessingException {
+        String url = moderationUrl + imageEndpoint;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(
+            SightEngineUtils.createImageModerationRequest(imageBase64, apiUser, apiSecret), headers);
+        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            String jsonString = response.getBody();
+            log.info(jsonString);
+            return SightEngineUtils.getViolationReasons(jsonString);
+
+        } else {
+            log.error("Failed to moderate image \"{}\": {}", imageBase64, response.getBody());
+            throw new FailedModerationException("Moderation service is down");
+        }
     }
 }
