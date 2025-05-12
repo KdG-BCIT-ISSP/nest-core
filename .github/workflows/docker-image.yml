@@ -60,6 +60,9 @@ jobs:
             --build-arg MAIL_PORT="${{ secrets.MAIL_PORT }}" \
             --build-arg MAIL_USERNAME="${{ secrets.MAIL_USERNAME }}" \
             --build-arg MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}" \
+            --build-arg SIGHTENGINE_URL="${{ secrets.SIGHTENGINE_URL }}" \
+            --build-arg SIGHTENGINE_USER="${{ secrets.SIGHTENGINE_USER }}" \
+            --build-arg SIGHTENGINE_SECRET="${{ secrets.SIGHTENGINE_SECRET }}" \
             --platform linux/amd64 \
             -t devjasper0906/nest-core:${{ env.COMMIT_HASH }} \
             --load \
