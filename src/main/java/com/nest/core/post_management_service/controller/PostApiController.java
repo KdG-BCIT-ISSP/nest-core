@@ -103,10 +103,13 @@ public class PostApiController {
                 if (!contentReasons.isEmpty()) {
                     throw new ContentViolationException("Your post content was flagged by our moderation service for the following violations: " + contentReasons);
                 }
-                for(String image : editPostRequest.getImageBase64()) {
-                    String imageReasons = moderationService.checkImageViolation(image);
-                    if (!imageReasons.isEmpty()) {
-                        throw new ContentViolationException("Your post image was flagged by our moderation service for the following violations: " + imageReasons);
+                if (editPostRequest.getImageBase64() != null) {
+                    for(String image : editPostRequest.getImageBase64()) {
+                        if (image.isEmpty()) continue;
+                        String imageReasons = moderationService.checkImageViolation(image);
+                        if (!imageReasons.isEmpty()) {
+                            throw new ContentViolationException("Your post image was flagged by our moderation service for the following violations: " + imageReasons);
+                        }
                     }
                 }
                 return ResponseEntity.ok(postService.editPost(editPostRequest, userId));
