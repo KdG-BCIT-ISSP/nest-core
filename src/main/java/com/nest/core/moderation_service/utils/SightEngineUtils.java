@@ -112,7 +112,7 @@ public class SightEngineUtils {
                 String type = match.path("type").asText();
                 String intensity = match.path("intensity").asText();
 
-                if (intensity.equalsIgnoreCase("high")) {
+                if (intensity.equalsIgnoreCase("high") || intensity.equalsIgnoreCase("medium")) {
                     reasons.add(type);
                 }
             }
