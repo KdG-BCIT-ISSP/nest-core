@@ -1,6 +1,8 @@
 package com.nest.core.post_management_service.controller;
 
 import com.nest.core.auth_service.dto.CustomSecurityUserDetails;
+import com.nest.core.moderation_service.exception.ContentViolationException;
+import com.nest.core.moderation_service.service.ModerationService;
 import com.nest.core.post_management_service.dto.CreatePostRequest;
 import com.nest.core.post_management_service.dto.EditPostRequest;
 import com.nest.core.post_management_service.exception.*;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/posts")
 public class PostApiController {
     private final PostService postService;
+    private final ModerationService moderationService;
 
     @PostMapping
     public ResponseEntity<?> createPost(@AuthenticationPrincipal UserDetails userDetails, @RequestBody CreatePostRequest
@@ -29,6 +32,20 @@ public class PostApiController {
         if (userDetails instanceof CustomSecurityUserDetails customUser){
             Long userId = customUser.getUserId();
             try{
+                String titleReasons = moderationService.checkTextViolation(createPostRequest.getTitle());
+                if (!titleReasons.isEmpty()) {
+                    throw new ContentViolationException("Your post title was flagged by our moderation service for the following violations: " + titleReasons);
+                }
+                String contentReasons = moderationService.checkTextViolation(createPostRequest.getContent());
+                if (!contentReasons.isEmpty()) {
+                    throw new ContentViolationException("Your post content was flagged by our moderation service for the following violations: " + contentReasons);
+                }
+                for(String image : createPostRequest.getImageBase64()) {
+                    String imageReasons = moderationService.checkImageViolation(image);
+                    if (!imageReasons.isEmpty()) {
+                        throw new ContentViolationException("Your post image was flagged by our moderation service for the following violations: " + imageReasons);
+                    }
+                }
                 postService.createPost(createPostRequest, userId);
                 return ResponseEntity.ok("Post created");
             } catch (Exception e){
@@ -75,6 +92,20 @@ public class PostApiController {
         if (userDetails instanceof CustomSecurityUserDetails customUser){
             Long userId = customUser.getUserId();
             try{
+                String titleReasons = moderationService.checkTextViolation(editPostRequest.getTitle());
+                if (!titleReasons.isEmpty()) {
+                    throw new ContentViolationException("Your post title was flagged by our moderation service for the following violations: " + titleReasons);
+                }
+                String contentReasons = moderationService.checkTextViolation(editPostRequest.getContent());
+                if (!contentReasons.isEmpty()) {
+                    throw new ContentViolationException("Your post content was flagged by our moderation service for the following violations: " + contentReasons);
+                }
+                for(String image : editPostRequest.getImageBase64()) {
+                    String imageReasons = moderationService.checkImageViolation(image);
+                    if (!imageReasons.isEmpty()) {
+                        throw new ContentViolationException("Your post image was flagged by our moderation service for the following violations: " + imageReasons);
+                    }
+                }
                 return ResponseEntity.ok(postService.editPost(editPostRequest, userId));
             } catch (Exception e){
                 throw new EditArticleFailException("Failed to edit post: " + e.getMessage());
