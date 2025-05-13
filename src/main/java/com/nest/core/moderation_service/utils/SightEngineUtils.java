@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class SightEngineUtils {
 
     private static List<String> textCategories = Arrays.asList("personal", "link", "spam", "content-trade",
-            "money-transaction", "extremism", "violence", "drug", "self-harm", "weapon");
+            "money-transaction", "extremism", "violence", "drug", "weapon");
     private static List<String> imageCategories = Arrays.asList("offensive", "nudity", "scam",
             "weapon", "gore", "violence", "recreational_drug");
 
@@ -29,7 +29,7 @@ public class SightEngineUtils {
         requestBody.add("text", text);
         requestBody.add("mode", "rules");
         requestBody.add("lang", "en,fr,de,nl");
-        requestBody.add("categories", "profanity,personal,link,spam,content-trade,money-transaction,extremism,violence,weapon,drug,self-harm");
+        requestBody.add("categories", "profanity,personal,link,spam,content-trade,money-transaction,extremism,violence,weapon,drug");
         requestBody.add("api_user", apiUser);
         requestBody.add("api_secret", apiSecret);
         return requestBody;
@@ -40,7 +40,7 @@ public class SightEngineUtils {
         requestBody.add("media", new ByteArrayResource(Base64.getDecoder().decode(imageBase64.getBytes())) {
             @Override
             public String getFilename() {
-                return "image.jpg"; // Provide a filename if needed
+                return "image.jpg";
             }
         });
         requestBody.add("models", "nudity-2.1,weapon,recreational_drug,offensive-2.0,scam,text-content,gore-2.0,text,violence");
