@@ -37,6 +37,9 @@ public class SightEngineUtils {
 
     public static MultiValueMap<String, Object> createImageModerationRequest(String imageBase64, String apiUser, String apiSecret) {
         MultiValueMap<String, Object> requestBody = new LinkedMultiValueMap<>();
+        if (imageBase64.contains(",")) {
+            imageBase64 = imageBase64.split(",")[1];
+        }
         requestBody.add("media", new ByteArrayResource(Base64.getDecoder().decode(imageBase64.getBytes())) {
             @Override
             public String getFilename() {
